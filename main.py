@@ -1,18 +1,8 @@
-import sys
-from PyQt6.QtWidgets import (
-    QApplication,
-    QMainWindow,
-    QWidget,
-    QVBoxLayout,
-    QPushButton,
-    QLabel,
-    QHBoxLayout
-)
-from PyQt6.QtCore import Qt
-from windows.MainWindow import MainWindow
+import tkinter as tk
+from windows.MainFrame import MainFrame
+
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec())
+    root = tk.Tk()
+    MainFrame(root).pack()
+    root.mainloop()

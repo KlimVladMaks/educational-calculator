@@ -1,8 +1,9 @@
 import tkinter as tk
-from windows.MainFrame import MainFrame
-
+from frames.MainFrame import MainFrame
 
 if __name__ == "__main__":
     root = tk.Tk()
-    MainFrame(root).pack()
+    main_frame = MainFrame(root)
+    main_frame.master.title("Образовательный калькулятор")
+    main_frame.display_frame()
     root.mainloop()

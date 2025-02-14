@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 from frames.BaseFrame import BaseFrame
 from frames.CalendarsFrame import CalendarsFrame
 from frames.ProgramsFrame import ProgramsFrame
@@ -16,36 +17,32 @@ class MainFrame(BaseFrame):
     
     def create_frame(self):
         button_width = 60
-        button_height = 2
+        button_height = 10
         padding_between_buttons = 8
 
-        tk.Button(self,
+        ttk.Button(self,
                   text="Производственные календари",
                   command=self.open_calendars,
                   width=button_width,
-                  height=button_height).pack(pady=padding_between_buttons)
+                  padding=(0, button_height)).pack(pady=padding_between_buttons)
 
-        tk.Button(self,
+        ttk.Button(self,
                   text="Учебные программы",
                   command=self.open_programs,
                   width=button_width,
-                  height=button_height).pack(pady=padding_between_buttons)
+                  padding=(0, button_height)).pack(pady=padding_between_buttons)
         
-        tk.Button(self,
+        ttk.Button(self,
                   text="Учебные группы",
                   command=self.open_groups,
                   width=button_width,
-                  height=button_height).pack(pady=padding_between_buttons)
+                  padding=(0, button_height)).pack(pady=padding_between_buttons)
         
-        tk.Button(self,
+        ttk.Button(self,
                   text="Выгрузить в Word",
                   command=self.open_uploading,
                   width=button_width,
-                  height=button_height).pack(pady=padding_between_buttons)
-    
-    def display_frame(self):
-        super().display_frame()
-        self.master.minsize(width=700, height=400)
+                  padding=(0, button_height)).pack(pady=padding_between_buttons)
 
     def open_calendars(self):
         calendars_frame = CalendarsFrame(self.master, self)

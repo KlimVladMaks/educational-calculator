@@ -4,6 +4,9 @@ from frames.BaseFrame import BaseFrame
 
 
 class AddProgramFrame(BaseFrame):
+    """
+    Фрейм для добавления новой учебной программы.
+    """
     def __init__(self, master, parent_frame):
         super().__init__(master)
         self.parent_frame = parent_frame

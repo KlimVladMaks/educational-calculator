@@ -67,5 +67,5 @@ class ProgramsFrame(BaseFrame):
         self.parent_frame.display_frame()
 
     def open_add_program(self):
-        add_program_frame = AddProgramFrame(self.master, self)
-        add_program_frame.display_frame()
+        self.add_program_frame = AddProgramFrame(self.master, self)
+        self.add_program_frame.display_frame()

@@ -10,3 +10,5 @@ dist/
 *.py,cover
 .ipynb_checkpoints
 .vscode/
+.venv/
+side_data/

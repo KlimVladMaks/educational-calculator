@@ -34,6 +34,11 @@ class Table:
 
     def pack(self):
         self.tree.pack(pady=10)
+    
+    def update(self, new_rows):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        self.add_rows(new_rows)
 
     def sort_column(self, col):
         if self.current_sort_column == col:
@@ -43,7 +48,16 @@ class Table:
             self.current_sort_column = col
         
         data = [(self.tree.item(item)["values"], item) for item in self.tree.get_children()]
-        data.sort(key=lambda x: x[0][self.tree["columns"].index(col)], reverse=not self.sort_order)
+        
+        is_numeric = all(
+            isinstance(x[0][self.tree["columns"].index(col)], (int, float)) 
+            for x in data if x[0][self.tree["columns"].index(col)] != ''
+        )
+        
+        if is_numeric:
+            data.sort(key=lambda x: float(x[0][self.tree["columns"].index(col)]), reverse=not self.sort_order)
+        else:
+            data.sort(key=lambda x: str(x[0][self.tree["columns"].index(col)]), reverse=not self.sort_order)
 
         self.tree.delete(*self.tree.get_children())
         for values, item in data:

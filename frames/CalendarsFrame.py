@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
+import json
 from frames.BaseFrame import BaseFrame
 from widgets.Table import Table
 from database.Database import Database
@@ -22,7 +24,13 @@ class CalendarsFrame(BaseFrame):
 
         ttk.Label(self, text="Производственные календари").pack(pady=10)
         self.create_table()
-        ttk.Button(self, text="Добавить производственный календарь").pack(pady=10)
+
+        self.buttons_frame = ttk.Frame(self)
+        self.buttons_frame.pack(pady=10)
+        ttk.Button(self.buttons_frame, text="Добавить календарь").grid(row=0, column=0, padx=10)
+        ttk.Button(self.buttons_frame,
+                   text="Загрузить календарь",
+                   command=self.download_calendar).grid(row=0, column=1, padx=10)
     
     def create_table(self):
         columns = [
@@ -78,3 +86,16 @@ class CalendarsFrame(BaseFrame):
             data.append(days_off)
             data.append(total_days)
         return table_data
+    
+    def download_calendar(self):
+        file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
+        if file_path:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+                new_calendar_data = [data["name"], data["start_date"], data["end_date"], data["days_off_list"]]
+                self.db.calendars.add(new_calendar_data)
+                self.update_table()
+    
+    def update_table(self):
+        new_table_data = self.get_table_data()
+        self.table.update(new_table_data)

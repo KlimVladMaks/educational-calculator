@@ -182,7 +182,11 @@ class GroupsFrame(BaseFrame):
                     break
         filename = ".\calendar_app\days_off.json"
         with open(filename, 'w+', encoding='utf-8') as file:
-            json.dump(days_off, file, ensure_ascii=False, indent=4)
+            data = {
+                "Праздник": [],
+                "Выходной": days_off
+            }
+            json.dump(data, file, ensure_ascii=False, indent=4)
         end_date = Calculator.calculate_end_date(group_data[1], group_data[2], group_data[3])
         filename = ".\calendar_app\study_periods.json"
         with open(filename, 'w+', encoding='utf-8') as file:

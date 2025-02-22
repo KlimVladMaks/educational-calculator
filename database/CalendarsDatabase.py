@@ -57,3 +57,19 @@ class CalendarsDatabase:
                 self.save_data()
                 return True
         return False
+    
+    def add(self, calendar_data):
+        name, start_date, end_date, days_off_list = calendar_data
+        calendars = self.data.get('calendars', [])
+        for calendar in calendars:
+            if calendar["name"] == name:
+                return False
+        new_calendar = {
+            "name": name,
+            "start_date": start_date,
+            "end_date": end_date,
+            "days_off_list": days_off_list
+        }
+        calendars.append(new_calendar)
+        self.save_data()
+        return True

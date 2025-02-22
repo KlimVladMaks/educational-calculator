@@ -13,8 +13,8 @@ class CalendarApp:
                                  month=datetime.datetime.now().month, day=datetime.datetime.now().day)
         self.calendar.pack(pady=20)
 
-        self.load_holidays('.\calendar_app\holidays.json')
-        self.load_study_periods('.\calendar_app\study_periods.json')
+        self.load_holidays_and_weekends('./calendar_app/days_off.json')
+        self.load_study_periods('./calendar_app/study_periods.json')
         
         self.plot_calendar()
         
@@ -24,18 +24,25 @@ class CalendarApp:
         self.btn_info = tk.Button(master, text='Информация', command=self.show_info)
         self.btn_info.pack(pady=10)
 
-    def load_holidays(self, filename):
+    def load_holidays_and_weekends(self, filename):
         try:
             with open(filename, 'r', encoding='utf-8') as file:
-                self.holidays = json.load(file)
+                data = json.load(file)
+                self.holidays = data.get('Праздник', [])
+                self.weekends = data.get('Выходной', [])
         except FileNotFoundError:
-            messagebox.showerror("Ошибка", "Файл с праздничными днями не найден.")
+            messagebox.showerror("Ошибка", "Файл с праздничными и выходными днями не найден.")
             self.holidays = []
+            self.weekends = []
         except json.JSONDecodeError as e:
             print(f"Ошибка декодирования JSON: {e}")
+            self.holidays = []
+            self.weekends = []
         except Exception as e:
             print(f"Произошла ошибка: {e}")
-        
+            self.holidays = []
+            self.weekends = []
+
     def load_study_periods(self, filename):
         try:
             with open(filename, 'r', encoding='utf-8') as file:
@@ -45,38 +52,28 @@ class CalendarApp:
             self.study_periods = []
         except json.JSONDecodeError as e:
             print(f"Ошибка декодирования JSON: {e}")
+            self.study_periods = []
         except Exception as e:
             print(f"Произошла ошибка: {e}")
+            self.study_periods = []
 
     def plot_calendar(self):
         for holiday in self.holidays:
-            date = datetime.datetime.strptime(holiday['date'], '%Y-%m-%d')
+            date = datetime.datetime.strptime(holiday, '%Y-%m-%d')
             self.calendar.calevent_create(date, "Праздничный день", 'holiday')
+
+        for weekend in self.weekends:
+            date = datetime.datetime.strptime(weekend, '%Y-%m-%d')
+            self.calendar.calevent_create(date, "Выходной", 'weekend')
 
         for period in self.study_periods:
             self.add_study_period(period)
 
         self.calendar.tag_config('holiday', background='red')
+        self.calendar.tag_config('weekend', background='gray')
         self.calendar.tag_config('theory', background='steelblue')
         self.calendar.tag_config('practice', background='forestgreen')
         self.calendar.tag_config('exam', background='darkviolet')
-
-        self.mark_weekends()
-
-    def mark_weekends(self):
-        date = self.calendar.get_date()
-        year = datetime.datetime.strptime(date, '%m/%d/%y').year
-
-        for month in range(1, 13):
-            for day in range(1, 32):
-                try:
-                    current_date = datetime.date(year, month, day)
-                    if current_date.weekday() >= 5:  # Saturday or Sunday
-                        self.calendar.calevent_create(current_date, "Выходной", 'weekend')
-                except ValueError:
-                    continue  # Skip invalid days like February 30
-
-        self.calendar.tag_config('weekend', background='gray')
 
     def add_study_period(self, period):
         start_date = datetime.datetime.strptime(period['start_date'], '%Y-%m-%d')
@@ -84,7 +81,8 @@ class CalendarApp:
 
         current_date = start_date
         while current_date <= end_date:
-            if current_date not in [datetime.datetime.strptime(holiday['date'], '%Y-%m-%d') for holiday in self.holidays]:
+            if current_date.strftime('%Y-%m-%d') not in self.holidays and \
+               current_date.strftime('%Y-%m-%d') not in self.weekends:
                 if period['type'] == 'theory':
                     self.calendar.calevent_create(current_date, "Период теории", 'theory')
                 elif period['type'] == 'practice':
@@ -97,30 +95,26 @@ class CalendarApp:
     def show_info(self):
         info = []
         
-        # Gather study periods
         for period in self.study_periods:
             start_date = datetime.datetime.strptime(period['start_date'], '%Y-%m-%d').strftime('%d-%m-%Y')
             end_date = datetime.datetime.strptime(period['end_date'], '%Y-%m-%d').strftime('%d-%m-%Y')
             info.append(f"{period['type'].capitalize()}: {start_date} - {end_date}")
 
-        # Gather holidays
         for holiday in self.holidays:
-            date = datetime.datetime.strptime(holiday['date'], '%Y-%m-%d').strftime('%d-%m-%Y')
-            info.append(f"Название праздника: {holiday['name']} - {date}")
+            date = datetime.datetime.strptime(holiday, '%Y-%m-%d').strftime('%d-%m-%Y')
+            if holiday == self.holidays[0]:
+                info.append(f"Праздничные дни:\n {date}")
+            else:
+                info.append(date)
 
-        # Display the information
-        messagebox.showinfo("Информация", "\n".join(info) if info else "Нет доступной информации.")
+        messagebox.showinfo("Информация", "\n ".join(info) if info else "Нет доступной информации.")
 
     def export_data(self):
         data = {
             'holidays': self.holidays,
+            'weekends': self.weekends,
             'study_periods': self.study_periods
         }
         with open('exported_data.json', 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
             messagebox.showinfo("Успех", "Информация экспортирована в файл exported_data.json")
-
-if __name__ == '__main__':
-    root = tk.Tk()
-    app = CalendarApp(root)
-    root.mainloop()

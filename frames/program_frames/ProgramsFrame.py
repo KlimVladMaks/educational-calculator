@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from frames.BaseFrame import BaseFrame
 from frames.program_frames.AddProgramFrame import AddProgramFrame
+from frames.program_frames.EditProgramFrame import EditProgramFrame
 from widgets.Table import Table
 from database.Database import Database
 from widgets.BackButton import BackButton
@@ -55,14 +56,24 @@ class ProgramsFrame(BaseFrame):
     
     def create_context_menu(self):
         self.menu = tk.Menu(self, tearoff=0)
+        self.menu.add_command(label="Изменить", command=self.open_edit_program)
         self.menu.add_command(label="Удалить", command=self.delete_selected)
         self.table.tree.bind("<Button-3>", self.show_context_menu)
     
+    def open_edit_program(self):
+        selected_items = self.table.tree.selection()
+        item = selected_items[0]
+        item_data = self.table.tree.item(item)
+        values = item_data["values"]
+        program_data = self.db.programs.get(str(values[0]))
+        edit_program_frame = EditProgramFrame(self.master, self, program_data)
+        edit_program_frame.display_frame()
+
     def delete_selected(self):
         selected_items = self.table.tree.selection()
         for item in selected_items:
             item_data = self.table.tree.item(item)
-            values = item_data['values']
+            values = item_data["values"]
             self.db.programs.delete(str(values[0]))
             self.table.tree.delete(item)
     
@@ -73,8 +84,8 @@ class ProgramsFrame(BaseFrame):
             self.menu.post(event.x_root, event.y_root)
     
     def open_add_program(self):
-        self.add_program_frame = AddProgramFrame(self.master, self)
-        self.add_program_frame.display_frame()
+        add_program_frame = AddProgramFrame(self.master, self)
+        add_program_frame.display_frame()
     
     def update(self):
         new_table_data = self.get_table_data()

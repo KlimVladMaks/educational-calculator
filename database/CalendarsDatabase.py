@@ -11,7 +11,8 @@ class CalendarsDatabase:
     3 - Список с датами выходных дней
     """
 
-    def __init__(self):
+    def __init__(self, parent_db):
+        self.parent_db = parent_db
         self.filename = 'database.json'
         self.load_data()
     
@@ -48,15 +49,15 @@ class CalendarsDatabase:
                     calendar['days_off_list']
                 ]
     
-    def delete(self, name):
+    def delete(self, calendar_name):
         self.load_data()
         calendars = self.data.get('calendars', [])
         for i, calendar in enumerate(calendars):
-            if calendar['name'] == name:
+            if calendar['name'] == calendar_name:
                 del calendars[i]
-                self.save_data()
-                return True
-        return False
+                break
+        self.save_data()
+        self.parent_db.groups.delete_by_calendar(calendar_name)
     
     def add(self, calendar_data):
         name, start_date, end_date, days_off_list = calendar_data

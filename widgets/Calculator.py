@@ -6,8 +6,8 @@ class Calculator:
     
     def calculate_end_date(calendar_name, program_name, start_date_str):
         db = Database()
-        days_off_list = db.calendars.get(calendar_name)[3]
-        study_days = db.programs.get_total_days(program_name)
+        days_off_list = db.calendars.get(str(calendar_name))[3]
+        study_days = db.programs.get_total_days(str(program_name))
         start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
         day_off_dates = {datetime.strptime(date, "%Y-%m-%d") for date in days_off_list}
         current_date = start_date

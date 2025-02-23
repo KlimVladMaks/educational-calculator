@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from frames.BaseFrame import BaseFrame
 from database.Database import Database
+from widgets.BackButton import BackButton
 
 
 class AddProgramFrame(BaseFrame):
@@ -15,28 +16,20 @@ class AddProgramFrame(BaseFrame):
         self.create_frame()
     
     def create_frame(self):
-        self.back_button = ttk.Button(self.master, text="Назад", command=self.go_back)
-        self.back_button.place(relx=0.0, rely=0.0, anchor='nw', x=10, y=10)
+        self.back_button = BackButton(self.master, command=self.go_back)
 
         ttk.Label(self, text="Добавить учебную программу").pack(pady=10)
 
-        self.input_name_frame = ttk.Frame(self)
-        self.input_name_frame.pack(pady=10)
-
-        self.name_label = ttk.Label(self.input_name_frame, text="Название:")
-        self.name_label.grid(row=0, column=0, padx=5)
-        self.name_entry = ttk.Entry(self.input_name_frame, width=50)
-        self.name_entry.grid(row=0, column=1, padx=5)
+        ttk.Label(self, text="Название:").pack(pady=(10, 0))
+        self.name_entry = ttk.Entry(self, width=50)
+        self.name_entry.pack(pady=(0, 10))
 
         self.input_duration_frame = ttk.Frame(self)
         self.input_duration_frame.pack(pady=10)
 
-        self.theory_label = ttk.Label(self.input_duration_frame, text="Теория:")
-        self.theory_label.grid(row=0, column=0, padx=5)
-        self.practice_label = ttk.Label(self.input_duration_frame, text="Практика:")
-        self.practice_label.grid(row=0, column=1, padx=5)
-        self.exams_label = ttk.Label(self.input_duration_frame, text="Экзамены:")
-        self.exams_label.grid(row=0, column=2, padx=5)
+        ttk.Label(self.input_duration_frame, text="Теория:").grid(row=0, column=0, padx=5)
+        ttk.Label(self.input_duration_frame, text="Практика:").grid(row=0, column=1, padx=5)
+        ttk.Label(self.input_duration_frame, text="Экзамены:").grid(row=0, column=2, padx=5)
 
         self.theory_entry = ttk.Entry(self.input_duration_frame)
         self.theory_entry.grid(row=1, column=0, padx=5)
@@ -49,10 +42,15 @@ class AddProgramFrame(BaseFrame):
         self.practice_entry.bind("<KeyRelease>", self.update_total)
         self.exams_entry.bind("<KeyRelease>", self.update_total)
 
-        self.total_label = ttk.Label(self, text=f"Всего: 0")
+        self.total_label = ttk.Label(self, text=f"Всего (дней): 0")
         self.total_label.pack(pady=10)
 
         ttk.Button(self, text="Добавить учебную программу", command=self.add_program).pack(pady=10)
+    
+    def go_back(self):
+        self.back_button.destroy()
+        self.destroy()
+        self.parent_frame.display_frame()
     
     def update_total(self, event=None):
         try:
@@ -60,29 +58,24 @@ class AddProgramFrame(BaseFrame):
             practice = int(self.practice_entry.get()) if self.practice_entry.get() else 0
             exams = int(self.exams_entry.get()) if self.exams_entry.get() else 0
             total = theory + practice + exams
-            self.total_label.config(text=f"Всего: {total}")
+            self.total_label.config(text=f"Всего (дней): {total}")
         except ValueError:
-            self.total_label.config(text="Всего: 0")
+            self.total_label.config(text="Всего (дней): 0")
     
     def add_program(self):
-        self.new_program_data = []
+        new_program_data = []
 
-        self.name = str(self.name_entry.get())
-        self.theory = int(self.theory_entry.get())
-        self.practice = int(self.practice_entry.get())
-        self.exams = int(self.exams_entry.get())
+        name = str(self.name_entry.get())
+        theory = int(self.theory_entry.get())
+        practice = int(self.practice_entry.get())
+        exams = int(self.exams_entry.get())
 
-        self.new_program_data.append(self.name)
-        self.new_program_data.append(self.theory)
-        self.new_program_data.append(self.practice)
-        self.new_program_data.append(self.exams)
+        new_program_data.append(name)
+        new_program_data.append(theory)
+        new_program_data.append(practice)
+        new_program_data.append(exams)
 
-        self.db.programs.add(self.new_program_data)
+        self.db.programs.add(new_program_data)
 
         self.parent_frame.update()
         self.go_back()
-
-    def go_back(self):
-        self.back_button.destroy()
-        self.destroy()
-        self.parent_frame.display_frame()

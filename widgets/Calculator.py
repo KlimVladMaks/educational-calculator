@@ -18,7 +18,7 @@ class Calculator:
             current_date += timedelta(days=1)
         return current_date.strftime("%Y-%m-%d")
     
-    def count_days(start_date, end_date):
+    def count_days_between_dates(start_date, end_date):
         start = datetime.strptime(start_date, "%Y-%m-%d")
         end = datetime.strptime(end_date, "%Y-%m-%d")
         delta = (end - start).days + 1

@@ -6,6 +6,7 @@ class Table:
     """
     Класс для создания таблицы.
     """
+
     def __init__(self, frame, columns):
         self.frame = frame
         self.columns = columns
@@ -16,15 +17,17 @@ class Table:
         self.column_names = []
         for column in self.columns:
             self.column_names.append(column[0])
-        
+
         self.column_widths = []
         for column in self.columns:
             self.column_widths.append(columns[1])
-        
-        self.tree = ttk.Treeview(frame, columns=self.column_names, show="headings")
+
+        self.tree = ttk.Treeview(
+            frame, columns=self.column_names, show="headings")
 
         for name in self.column_names:
-            self.tree.heading(name, text=name, command=lambda name=name: self.sort_column(name))
+            self.tree.heading(
+                name, text=name, command=lambda name=name: self.sort_column(name))
         for column in self.columns:
             self.tree.column(column[0], width=column[1])
 
@@ -34,7 +37,7 @@ class Table:
 
     def pack(self):
         self.tree.pack(pady=10)
-    
+
     def update(self, new_rows):
         for item in self.tree.get_children():
             self.tree.delete(item)
@@ -46,23 +49,26 @@ class Table:
         else:
             self.sort_order = True
             self.current_sort_column = col
-        
-        data = [(self.tree.item(item)["values"], item) for item in self.tree.get_children()]
-        
+
+        data = [(self.tree.item(item)["values"], item)
+                for item in self.tree.get_children()]
+
         is_numeric = all(
-            isinstance(x[0][self.tree["columns"].index(col)], (int, float)) 
+            isinstance(x[0][self.tree["columns"].index(col)], (int, float))
             for x in data if x[0][self.tree["columns"].index(col)] != ''
         )
-        
+
         if is_numeric:
-            data.sort(key=lambda x: float(x[0][self.tree["columns"].index(col)]), reverse=not self.sort_order)
+            data.sort(key=lambda x: float(
+                x[0][self.tree["columns"].index(col)]), reverse=not self.sort_order)
         else:
-            data.sort(key=lambda x: str(x[0][self.tree["columns"].index(col)]), reverse=not self.sort_order)
+            data.sort(key=lambda x: str(
+                x[0][self.tree["columns"].index(col)]), reverse=not self.sort_order)
 
         self.tree.delete(*self.tree.get_children())
         for values, item in data:
             self.tree.insert("", tk.END, iid=item, values=values)
-        
+
         self.update_sorting_arrows()
 
     def update_sorting_arrows(self):

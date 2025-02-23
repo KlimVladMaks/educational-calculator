@@ -6,7 +6,8 @@ from frames.group_frames.AddGroupFrame import AddGroupFrame
 from widgets.Table import Table
 from database.Database import Database
 from widgets.Calculator import Calculator
-from calendar_app.calendar_project import CalendarApp
+from calendar_app.CalendarApp import CalendarApp
+from widgets.BackButton import BackButton
 
 
 class GroupsFrame(BaseFrame):
@@ -18,10 +19,9 @@ class GroupsFrame(BaseFrame):
         self.parent_frame = parent_frame
         self.db = Database()
         self.create_frame()
-    
+
     def create_frame(self):
-        self.back_button = ttk.Button(self.master, text="Назад", command=self.go_back)
-        self.back_button.place(relx=0.0, rely=0.0, anchor='nw', x=10, y=10)
+        self.back_button = BackButton(self.master, command=self.go_back)
 
         ttk.Label(self, text="Учебные группы").pack(pady=10)
         self.create_table()
@@ -29,7 +29,6 @@ class GroupsFrame(BaseFrame):
     
     def create_table(self):
         self.create_comboboxes()
-
         columns = [
             ("Название", 150),
             ("Календарь", 100),
@@ -45,38 +44,11 @@ class GroupsFrame(BaseFrame):
 
         self.create_context_menu()
     
-    def create_context_menu(self):
-        self.menu = tk.Menu(self, tearoff=0)
-        self.menu.add_command(label="Календарь", command=self.open_calendar_app)
-        self.menu.add_command(label="Удалить", command=self.delete_selected)
-        self.table.tree.bind("<Button-3>", self.show_context_menu)
+    def go_back(self):
+        self.back_button.destroy()
+        self.destroy()
+        self.parent_frame.display_frame()
     
-    def show_context_menu(self, event):
-        row_id = self.table.tree.identify_row(event.y)
-        if row_id:
-            self.table.tree.selection_set(row_id)
-            self.menu.post(event.x_root, event.y_root)
-    
-    def delete_selected(self):
-        selected_items = self.table.tree.selection()
-        for item in selected_items:
-            item_data = self.table.tree.item(item)
-            values = item_data['values']
-            self.db.groups.delete(str(values[0]), str(values[1]), str(values[2]))
-            self.table.tree.delete(item)
-    
-    def get_table_data(self):
-        table_data = []
-        groups_data = self.db.groups.get_all()
-        for data in groups_data:
-            table_data.append(data)
-        for data in table_data:
-            end_date = Calculator.calculate_end_date(data[1], data[2], data[3])
-            data.append(end_date)
-            number_of_days = Calculator.count_days(data[3], data[4])
-            data.append(number_of_days)
-        return table_data
-
     def create_comboboxes(self):
         self.comboboxes_frame = ttk.Frame(self)
         self.comboboxes_frame.pack(pady=10)
@@ -105,7 +77,7 @@ class GroupsFrame(BaseFrame):
                 (program_name == data[2])) and (data[1] not in calendars_names):
                 calendars_names.append(data[1])
         return calendars_names
-
+    
     def get_programs_names(self, calendar_name=None):
         programs_names = []
         groups_data = self.db.groups.get_all()
@@ -119,14 +91,26 @@ class GroupsFrame(BaseFrame):
     def filter_table(self, event=None):
         selected_calendar = self.calendar_combobox.get()
         selected_program = self.program_combobox.get()
-        table_data = []
+        filtered_table_data = []
         all_table_data = self.get_table_data()
         for data in all_table_data:
             if ((selected_calendar == "Все календари") or (data[1] == selected_calendar)) and \
                ((selected_program == "Все программы") or (data[2] == selected_program)):
-                table_data.append(data)
-        self.table.update(table_data)
+                filtered_table_data.append(data)
+        self.table.update(filtered_table_data)
         self.update_comboboxes()
+    
+    def get_table_data(self):
+        table_data = []
+        groups_data = self.db.groups.get_all()
+        for data in groups_data:
+            table_data.append(data)
+        for data in table_data:
+            end_date = Calculator.calculate_end_date(data[1], data[2], data[3])
+            data.append(end_date)
+            number_of_days = Calculator.count_days_between_dates(data[3], data[4])
+            data.append(number_of_days)
+        return table_data
     
     def update_comboboxes(self):
         selected_calendar = self.calendar_combobox.get()
@@ -144,21 +128,11 @@ class GroupsFrame(BaseFrame):
         self.calendar_combobox.set(selected_calendar)
         self.program_combobox.set(selected_program)
     
-    def go_back(self):
-        self.back_button.destroy()
-        self.pack_forget()
-        self.parent_frame.display_frame()
-    
-    def update(self):
-        new_table_data = self.get_table_data()
-        self.table.update(new_table_data)
-        self.calendar_combobox.set("Все календари")
-        self.program_combobox.set("Все программы")
-        self.update_comboboxes()
-    
-    def open_add_groups(self):
-        self.add_group_frame = AddGroupFrame(self.master, self)
-        self.add_group_frame.display_frame()
+    def create_context_menu(self):
+        self.menu = tk.Menu(self, tearoff=0)
+        self.menu.add_command(label="Календарь", command=self.open_calendar_app)
+        self.menu.add_command(label="Удалить", command=self.delete_selected)
+        self.table.tree.bind("<Button-3>", self.show_context_menu)
     
     def open_calendar_app(self):
         selected_items = self.table.tree.selection()
@@ -171,20 +145,12 @@ class GroupsFrame(BaseFrame):
         CalendarApp(new_window)
     
     def prepare_files_for_calendar_app(self, group_data):
-        days_off = []
-        filename = "database.json"
-        with open(filename, 'r', encoding='utf-8') as file:
-            data = json.load(file)
-            calendars = data.get('calendars', [])
-            for calendar in calendars:
-                if calendar["name"] == group_data[1]:
-                    days_off = calendar["days_off_list"]
-                    break
+        days_off_list = self.db.calendars.get_days_off_list(group_data[1])
         filename = ".\calendar_app\days_off.json"
         with open(filename, 'w+', encoding='utf-8') as file:
             data = {
                 "Праздник": [],
-                "Выходной": days_off
+                "Выходной": days_off_list
             }
             json.dump(data, file, ensure_ascii=False, indent=4)
         end_date = Calculator.calculate_end_date(group_data[1], group_data[2], group_data[3])
@@ -196,3 +162,28 @@ class GroupsFrame(BaseFrame):
                  "type": "theory"}
             ]
             json.dump(data, file, ensure_ascii=False, indent=4)
+    
+    def delete_selected(self):
+        selected_items = self.table.tree.selection()
+        for item in selected_items:
+            item_data = self.table.tree.item(item)
+            values = item_data['values']
+            self.db.groups.delete(str(values[0]), str(values[1]), str(values[2]))
+            self.table.tree.delete(item)
+    
+    def show_context_menu(self, event):
+        row_id = self.table.tree.identify_row(event.y)
+        if row_id:
+            self.table.tree.selection_set(row_id)
+            self.menu.post(event.x_root, event.y_root)
+    
+    def open_add_groups(self):
+        self.add_group_frame = AddGroupFrame(self.master, self)
+        self.add_group_frame.display_frame()
+    
+    def update(self):
+        new_table_data = self.get_table_data()
+        self.table.update(new_table_data)
+        self.calendar_combobox.set("Все календари")
+        self.program_combobox.set("Все программы")
+        self.update_comboboxes()

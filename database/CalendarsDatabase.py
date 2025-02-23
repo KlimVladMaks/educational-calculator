@@ -73,3 +73,12 @@ class CalendarsDatabase:
         calendars.append(new_calendar)
         self.save_data()
         return True
+    
+    def get_days_off_list(self, calendar_name):
+        days_off_list = []
+        calendars = self.data.get('calendars', [])
+        for calendar in calendars:
+            if calendar["name"] == calendar_name:
+                days_off_list = calendar["days_off_list"]
+                break
+        return days_off_list

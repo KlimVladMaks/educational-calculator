@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from frames.BaseFrame import BaseFrame
-from frames.AddProgramFrame import AddProgramFrame
+from frames.program_frames.AddProgramFrame import AddProgramFrame
 from widgets.Table import Table
 from database.Database import Database
 

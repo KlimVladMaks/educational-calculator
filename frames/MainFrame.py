@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 from frames.BaseFrame import BaseFrame
-from frames.CalendarsFrame import CalendarsFrame
-from frames.ProgramsFrame import ProgramsFrame
-from frames.GroupsFrame import GroupsFrame
+from frames.calendar_frames.CalendarsFrame import CalendarsFrame
+from frames.program_frames.ProgramsFrame import ProgramsFrame
+from frames.group_frames.GroupsFrame import GroupsFrame
 from frames.UploadingFrame import UploadingFrame
 
 

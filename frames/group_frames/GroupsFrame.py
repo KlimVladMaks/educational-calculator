@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import json
 from frames.BaseFrame import BaseFrame
-from frames.AddGroupFrame import AddGroupFrame
+from frames.group_frames.AddGroupFrame import AddGroupFrame
 from widgets.Table import Table
 from database.Database import Database
 from widgets.Calculator import Calculator

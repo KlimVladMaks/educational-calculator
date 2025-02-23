@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import filedialog
 import json
 from frames.BaseFrame import BaseFrame
+from frames.calendar_frames.AddCalendarFrame import AddCalendarFrame
 from widgets.Table import Table
 from database.Database import Database
 from widgets.Calculator import Calculator
@@ -27,7 +28,9 @@ class CalendarsFrame(BaseFrame):
 
         self.buttons_frame = ttk.Frame(self)
         self.buttons_frame.pack(pady=10)
-        ttk.Button(self.buttons_frame, text="Добавить календарь").grid(row=0, column=0, padx=10)
+        ttk.Button(self.buttons_frame,
+                   text="Добавить календарь",
+                   command=self.open_add_calendar).grid(row=0, column=0, padx=10)
         ttk.Button(self.buttons_frame,
                    text="Загрузить календарь",
                    command=self.download_calendar).grid(row=0, column=1, padx=10)
@@ -86,6 +89,10 @@ class CalendarsFrame(BaseFrame):
             data.append(days_off)
             data.append(total_days)
         return table_data
+
+    def update(self):
+        new_table_data = self.get_table_data()
+        self.table.update(new_table_data)
     
     def download_calendar(self):
         file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
@@ -99,3 +106,7 @@ class CalendarsFrame(BaseFrame):
     def update_table(self):
         new_table_data = self.get_table_data()
         self.table.update(new_table_data)
+    
+    def open_add_calendar(self):
+        self.add_calendar_frame = AddCalendarFrame(self.master, self)
+        self.add_calendar_frame.display_frame()

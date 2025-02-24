@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import ttk
 import json
@@ -145,7 +146,11 @@ class GroupsFrame(BaseFrame):
         CalendarApp(new_window)
     
     def prepare_files_for_calendar_app(self, group_data):
-        days_off_list = self.db.calendars.get_days_off_list(group_data[1])
+        directory = "./calendar_app"
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        days_off_list = self.db.calendars.get_days_off_list(str(group_data[1]))
         filename = ".\calendar_app\days_off.json"
         with open(filename, 'w+', encoding='utf-8') as file:
             data = {
@@ -153,6 +158,7 @@ class GroupsFrame(BaseFrame):
                 "Выходной": days_off_list
             }
             json.dump(data, file, ensure_ascii=False, indent=4)
+
         end_date = Calculator.calculate_end_date(group_data[1], group_data[2], group_data[3])
         filename = ".\calendar_app\study_periods.json"
         with open(filename, 'w+', encoding='utf-8') as file:

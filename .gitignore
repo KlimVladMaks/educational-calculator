@@ -13,3 +13,5 @@ dist/
 .venv/
 side_data/
 example_calendar.json
+main.spec
+build/

@@ -39,7 +39,7 @@ class MainFrame(BaseFrame):
                   padding=(0, button_height)).pack(pady=padding_between_buttons)
         
         ttk.Button(self,
-                  text="Выгрузить в Word",
+                  text="Выгрузить данные",
                   command=self.open_uploading,
                   width=button_width,
                   padding=(0, button_height)).pack(pady=padding_between_buttons)

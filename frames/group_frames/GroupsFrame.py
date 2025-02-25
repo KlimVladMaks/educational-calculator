@@ -4,6 +4,7 @@ from tkinter import ttk
 import json
 from frames.BaseFrame import BaseFrame
 from frames.group_frames.AddGroupFrame import AddGroupFrame
+from frames.group_frames.EditGroupFrame import EditGroupFrame
 from widgets.Table import Table
 from database.Database import Database
 from widgets.Calculator import Calculator
@@ -132,8 +133,19 @@ class GroupsFrame(BaseFrame):
     def create_context_menu(self):
         self.menu = tk.Menu(self, tearoff=0)
         self.menu.add_command(label="Календарь", command=self.open_calendar_app)
+        self.menu.add_command(label="Изменить", command=self.open_edit_group)
         self.menu.add_command(label="Удалить", command=self.delete_selected)
         self.table.tree.bind("<Button-3>", self.show_context_menu)
+    
+    def open_edit_group(self):
+        selected_items = self.table.tree.selection()
+        item = selected_items[0]
+        item_data = self.table.tree.item(item)
+        values = item_data["values"]
+        group_id = (str(values[0]), str(values[1]), str(values[2]))
+        group_data = self.db.groups.get(group_id)
+        edit_group_frame = EditGroupFrame(self.master, self, group_data)
+        edit_group_frame.display_frame()
     
     def open_calendar_app(self):
         selected_items = self.table.tree.selection()

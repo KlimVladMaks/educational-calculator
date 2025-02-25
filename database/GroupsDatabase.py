@@ -35,6 +35,20 @@ class GroupsDatabase:
             ])
         return result
     
+    def get(self, group_id):
+        self.load_data()
+        groups = self.data.get('groups', [])
+        for group in groups:
+            if (group["name"] == group_id[0]) and \
+               (group["calendar"] == group_id[1]) and \
+               (group["program"] == group_id[2]):
+                return [
+                    group["name"],
+                    group["calendar"],
+                    group["program"],
+                    group["start_date"]
+                ]
+    
     def delete(self, name, calendar, program):
         self.load_data()
         groups = self.data.get('groups', [])
@@ -87,4 +101,19 @@ class GroupsDatabase:
         for group in groups:
             if group["program"] == old_program_name:
                 group["program"] = new_program_name
+        self.save_data()
+
+    def update(self, group_id, updated_group_data):
+        self.load_data()
+        upd_name, upd_calendar, upd_program, upd_start_date = updated_group_data
+        groups = self.data.get('groups', [])
+        for group in groups:
+            if (group["name"] == group_id[0]) and \
+               (group["calendar"] == group_id[1]) and \
+               (group["program"] == group_id[2]):
+                group["name"] = upd_name
+                group["calendar"] = upd_calendar
+                group["program"] = upd_program
+                group["start_date"] = upd_start_date
+                break
         self.save_data()

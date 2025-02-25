@@ -2,27 +2,29 @@ import tkinter as tk
 from tkinter import ttk
 from frames.BaseFrame import BaseFrame
 from database.Database import Database
-from widgets.Calculator import Calculator
 from widgets.BackButton import BackButton
+from widgets.Calculator import Calculator
 
 
-class AddGroupFrame(BaseFrame):
+class EditGroupFrame(BaseFrame):
     """
-    Фрейм для добавления новой учебной группы.
+    Фрейм для изменения данный учебной группы.
     """
-    def __init__(self, master, parent_frame):
+    def __init__(self, master, parent_frame, old_group_data):
         super().__init__(master)
         self.parent_frame = parent_frame
+        self.old_group_data = old_group_data
         self.db = Database()
         self.create_frame()
     
     def create_frame(self):
         self.back_button = BackButton(self.master, command=self.go_back)
 
-        ttk.Label(self, text="Добавить учебную группу").pack(pady=10)
+        ttk.Label(self, text="Изменить данные учебной группы").pack(pady=10)
 
         ttk.Label(self, text="Название:").pack(pady=(10, 0))
         self.name_entry = ttk.Entry(self, width=50)
+        self.name_entry.insert(0, self.old_group_data[0])
         self.name_entry.pack(pady=(0, 10))
 
         self.comboboxes_frame = ttk.Frame(self)
@@ -37,16 +39,19 @@ class AddGroupFrame(BaseFrame):
         self.calendar_combobox = ttk.Combobox(self.comboboxes_frame,
                                               values=self.calendars_names,
                                               state="readonly")
+        self.calendar_combobox.set(self.old_group_data[1])
         self.calendar_combobox.grid(row=1, column=0, padx=10)
         self.calendar_combobox.bind("<<ComboboxSelected>>", self.update_labels)
         self.program_combobox = ttk.Combobox(self.comboboxes_frame,
                                              values=self.programs_names,
                                              state="readonly")
+        self.program_combobox.set(self.old_group_data[2])
         self.program_combobox.grid(row=1, column=1, padx=10)
         self.program_combobox.bind("<<ComboboxSelected>>", self.update_labels)
 
         ttk.Label(self, text="Дата начала обучения:").pack(pady=(10, 0))
         self.start_date_entry = ttk.Entry(self)
+        self.start_date_entry.insert(0, self.old_group_data[3])
         self.start_date_entry.pack(pady=(0, 10))
         self.start_date_entry.bind("<KeyRelease>", self.update_labels)
 
@@ -54,8 +59,9 @@ class AddGroupFrame(BaseFrame):
         self.total_days_label.pack(pady=10)
         self.end_date_label = ttk.Label(self, text="Дата окончания обучения: -")
         self.end_date_label.pack(pady=10)
+        self.update_labels()
 
-        ttk.Button(self, text="Добавить учебную группу", command=self.add_group).pack(pady=10)
+        ttk.Button(self, text="Обновить учебную группу", command=self.update_group).pack(pady=10)
     
     def go_back(self):
         self.back_button.destroy()
@@ -91,20 +97,21 @@ class AddGroupFrame(BaseFrame):
             self.total_days_label.config(text="Обучение займёт (дней): -")
             self.end_date_label.config(text="Дата окончания обучения: -")
     
-    def add_group(self):
-        new_group_data = []
+    def update_group(self):
+        updated_group_data = []
 
         name = str(self.name_entry.get())
         calendar = str(self.calendar_combobox.get())
         program = str(self.program_combobox.get())
         start_date = str(self.start_date_entry.get())
 
-        new_group_data.append(name)
-        new_group_data.append(calendar)
-        new_group_data.append(program)
-        new_group_data.append(start_date)
+        updated_group_data.append(name)
+        updated_group_data.append(calendar)
+        updated_group_data.append(program)
+        updated_group_data.append(start_date)
 
-        self.db.groups.add(new_group_data)
+        group_id = (self.old_group_data[0], self.old_group_data[1], self.old_group_data[2])
+        self.db.groups.update(group_id, updated_group_data)
 
         self.parent_frame.update()
         self.go_back()

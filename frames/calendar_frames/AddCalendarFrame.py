@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from frames.BaseFrame import BaseFrame
 from database.Database import Database
+from widgets.BackButton import BackButton
 
 
 class AddCalendarFrame(BaseFrame):
@@ -15,8 +16,8 @@ class AddCalendarFrame(BaseFrame):
         self.create_frame()
     
     def create_frame(self):
-        self.back_button = ttk.Button(self.master, text="Назад", command=self.go_back)
-        self.back_button.place(relx=0.0, rely=0.0, anchor='nw', x=10, y=10)
+        self.back_button = BackButton(self.master, command=self.go_back)
+        self.back_button.pack()
 
         ttk.Label(self, text="Добавить производственный календарь").pack(pady=10)
 

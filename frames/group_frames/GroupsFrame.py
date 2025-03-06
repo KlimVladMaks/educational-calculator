@@ -24,6 +24,7 @@ class GroupsFrame(BaseFrame):
 
     def create_frame(self):
         self.back_button = BackButton(self.master, command=self.go_back)
+        self.back_button.pack()
 
         ttk.Label(self, text="Учебные группы").pack(pady=10)
         self.create_table()
@@ -35,12 +36,14 @@ class GroupsFrame(BaseFrame):
             ("Название", 150),
             ("Календарь", 100),
             ("Программа", 100),
+            ("Вид обучения", 100),
             ("Дата начала", 100),
             ("Дата окончания", 100),
-            ("Дней обучения", 100)
+            ("Дней обучения", 100),
+            ("Всего дней", 100)
         ]
         self.table = Table(self, columns)
-        self.table_data = self.get_table_data()
+        self.table_data = self.get_table_rows()
         self.table.add_rows(self.table_data)
         self.table.pack()
 
@@ -94,7 +97,7 @@ class GroupsFrame(BaseFrame):
         selected_calendar = self.calendar_combobox.get()
         selected_program = self.program_combobox.get()
         filtered_table_data = []
-        all_table_data = self.get_table_data()
+        all_table_data = self.get_table_rows()
         for data in all_table_data:
             if ((selected_calendar == "Все календари") or (data[1] == selected_calendar)) and \
                ((selected_program == "Все программы") or (data[2] == selected_program)):
@@ -102,16 +105,18 @@ class GroupsFrame(BaseFrame):
         self.table.update(filtered_table_data)
         self.update_comboboxes()
     
-    def get_table_data(self):
+    def get_table_rows(self):
         table_data = []
         groups_data = self.db.groups.get_all()
         for data in groups_data:
             table_data.append(data)
         for data in table_data:
-            end_date = Calculator.calculate_end_date(data[1], data[2], data[3])
+            end_date = Calculator.calculate_end_date(data[1], data[2], data[4])
             data.append(end_date)
-            number_of_days = Calculator.count_days_between_dates(data[3], data[4])
-            data.append(number_of_days)
+            total_study_days = self.db.programs.get_total_days(data[2])
+            data.append(total_study_days)
+            total_days = Calculator.count_days_between_dates(data[4], data[5])
+            data.append(total_days)
         return table_data
     
     def update_comboboxes(self):
@@ -186,7 +191,7 @@ class GroupsFrame(BaseFrame):
         for item in selected_items:
             item_data = self.table.tree.item(item)
             values = item_data['values']
-            self.db.groups.delete(str(values[0]), str(values[1]), str(values[2]))
+            self.db.groups.delete(str(values[0]))
             self.table.tree.delete(item)
     
     def show_context_menu(self, event):
@@ -199,8 +204,8 @@ class GroupsFrame(BaseFrame):
         self.add_group_frame = AddGroupFrame(self.master, self)
         self.add_group_frame.display_frame()
     
-    def update(self):
-        new_table_data = self.get_table_data()
+    def update_table(self):
+        new_table_data = self.get_table_rows()
         self.table.update(new_table_data)
         self.calendar_combobox.set("Все календари")
         self.program_combobox.set("Все программы")

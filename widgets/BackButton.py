@@ -10,7 +10,9 @@ class BackButton():
     def __init__(self, master, command):
         self.master = master
         self.back_button = ttk.Button(self.master, text="Назад", command=command)
-        self.back_button.place(relx=0.0, rely=0.0, anchor='nw', x=10, y=10)
     
     def destroy(self):
         self.back_button.destroy()
+    
+    def pack(self):
+        self.back_button.place(relx=0.0, rely=0.0, anchor='nw', x=10, y=10)

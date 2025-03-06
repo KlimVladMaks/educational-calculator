@@ -4,9 +4,8 @@ from tkinter import ttk
 
 class Table:
     """
-    Класс для создания таблицы.
+    Таблица.
     """
-
     def __init__(self, frame, columns):
         self.frame = frame
         self.columns = columns
@@ -20,16 +19,29 @@ class Table:
 
         self.column_widths = []
         for column in self.columns:
-            self.column_widths.append(columns[1])
+            self.column_widths.append(column[1])
+        
+        self.table_frame = ttk.Frame(self.frame)
+        self.table_frame.pack(fill="both", expand=True)
 
-        self.tree = ttk.Treeview(
-            frame, columns=self.column_names, show="headings")
+        self.tree = ttk.Treeview(self.table_frame, columns=self.column_names, show="headings")
 
         for name in self.column_names:
-            self.tree.heading(
-                name, text=name, command=lambda name=name: self.sort_column(name))
+            self.tree.heading(name, text=name, command=lambda name=name: self.sort_column(name))
         for column in self.columns:
-            self.tree.column(column[0], width=column[1])
+            self.tree.column(column[0], width=column[1], stretch=False)
+        
+        self.scroll_x = ttk.Scrollbar(self.table_frame, orient="horizontal", command=self.tree.xview)
+        self.tree.configure(xscrollcommand=self.scroll_x.set)
+
+        self.scroll_y = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=self.scroll_y.set)
+
+        self.scroll_x.pack(side="bottom", fill="x")
+        self.scroll_y.pack(side="right", fill="y")
+        self.tree.pack(side="left", fill="both", expand=True)
+
+        self.tree.bind("<Button-1>", self.on_treeview_click)
 
     def add_rows(self, rows):
         for row in rows:
@@ -73,9 +85,17 @@ class Table:
 
     def update_sorting_arrows(self):
         for col in self.tree["columns"]:
-            current_title = self.tree.heading(col)["text"].rstrip(" ↑↓")
+            current_title = self.tree.heading(col)["text"].strip("↑↓ ")
             if col == self.current_sort_column:
-                arrow = " ↑" if self.sort_order else " ↓"
-                self.tree.heading(col, text=current_title + arrow)
+                arrow = "↑ " if self.sort_order else "↓ "
+                self.tree.heading(col, text=arrow + current_title)
             else:
                 self.tree.heading(col, text=current_title)
+
+    def on_treeview_click(self, event):
+        region = self.tree.identify_region(event.x, event.y)
+        if region == "nothing":
+            self.tree.selection_remove(self.tree.selection())
+
+    def destroy(self):
+        self.table_frame.destroy()

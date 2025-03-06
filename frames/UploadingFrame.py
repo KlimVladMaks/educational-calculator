@@ -18,6 +18,7 @@ class UploadingFrame(BaseFrame):
 
     def create_widgets(self):
         self.back_button = BackButton(self.master, command=self.go_back)
+        self.back_button.pack()
 
         ttk.Label(self, text="Выгрузить данные").pack(pady=10)
 

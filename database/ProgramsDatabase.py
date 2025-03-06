@@ -4,11 +4,6 @@ import json
 class ProgramsDatabase:
     """
     База данных для работы с учебными программами.
-    Коды (индексы) для данных:
-    0 - Название учебной программы (первичный ключ).
-    1 - Число дней теории.
-    2 - Число дней практики.
-    3 - Число дней экзаменов.
     """
     def __init__(self, parent_db):
         self.parent_db = parent_db
@@ -26,34 +21,46 @@ class ProgramsDatabase:
     def get_all(self):
         self.load_data()
         programs = self.data.get('programs', [])
-        result = []
-        for program in programs:
-            result.append([
-                program['name'],
-                program['theory'],
-                program['practice'],
-                program['exams']
-            ])
-        return result
+        return programs
 
-    def get(self, name):
+    def get(self, program_name):
         self.load_data()
-        programs = self.data.get('programs', [])
-        for program in programs:
-            if program['name'] == name:
-                return [
-                    program['name'],
-                    program['theory'],
-                    program['practice'],
-                    program['exams'],
-                ]
+        for program in self.data.get('programs', []):
+            if program["name"] == program_name:
+                return program
+
+    def get_unique_stages_names(self):
+        self.load_data()
+        unique_stages_names = []
+        for program in self.data.get('programs', []):
+            for stage in program.get("stages", []):
+                stage_name = stage[0]
+                if stage_name not in unique_stages_names:
+                    unique_stages_names.append(stage_name)
+        return sorted(unique_stages_names)
     
-    def get_total_days(self, name):
+    def get_all_programs_names(self):
         self.load_data()
-        program_data = self.get(str(name))
-        total_days = program_data[1] + program_data[2] + program_data[3]
-        return total_days
+        programs_names = []
+        for program in self.data.get("programs", []):
+            programs_names.append(program["name"])
+        return programs_names
 
+    def get_total_days(self, program_name):
+        self.load_data()
+        program = self.get(program_name)
+        total_days = sum(stage[1] for stage in program["stages"])
+        return total_days
+    
+    def get_number_of_days_for_stage(self, program_name, stage_name):
+        self.load_data()
+        program = self.get(program_name)
+        number_of_days = 0
+        for stage in program["stages"]:
+            if stage[0] == stage_name:
+                number_of_days += stage[1]
+        return number_of_days
+        
     def delete(self, program_name):
         self.load_data()
         programs = self.data.get('programs', [])
@@ -65,16 +72,14 @@ class ProgramsDatabase:
         self.parent_db.groups.delete_by_program(program_name)
 
     def add(self, program_data):
-        name, theory, practice, exams = program_data
+        name, stages = program_data
         programs = self.data.get('programs', [])
         for program in programs:
             if program['name'] == name:
                 return False
         new_program = {
             'name': name,
-            'theory': theory,
-            'practice': practice,
-            'exams': exams
+            'stages': stages
         }
         programs.append(new_program)
         self.save_data()
@@ -93,3 +98,28 @@ class ProgramsDatabase:
                 break
         self.save_data()
         self.parent_db.groups.update_program(program_name, upd_name)
+    
+    def get_all_names(self):
+        names = []
+        for calendar in self.data.get('programs', []):
+            names.append(calendar["name"])
+        return names
+
+    def update_edu_stage(self, old_edu_stage, new_edu_stage):
+        self.load_data()
+        for program in self.data.get("programs", []):
+            program_stages = program["stages"]
+            for stage in program_stages:
+                if stage[0] == old_edu_stage:
+                    stage[0] = new_edu_stage
+        self.save_data()
+    
+    def delete_by_edu_stage(self, edu_stage):
+        self.load_data()
+        programs = self.data.get("programs", [])
+        for i, program in enumerate(programs):
+            for stage in program["stages"]:
+                if stage[0] == edu_stage:
+                    del programs[i]
+                    break
+        self.save_data()

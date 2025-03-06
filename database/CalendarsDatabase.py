@@ -83,3 +83,9 @@ class CalendarsDatabase:
                 days_off_list = calendar["days_off_list"]
                 break
         return days_off_list
+
+    def get_all_names(self):
+        names = []
+        for calendar in self.data.get('calendars', []):
+            names.append(calendar["name"])
+        return names

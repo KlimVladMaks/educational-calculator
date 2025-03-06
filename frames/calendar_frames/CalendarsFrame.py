@@ -23,6 +23,7 @@ class CalendarsFrame(BaseFrame):
 
     def create_frame(self):
         self.back_button = BackButton(self.master, command=self.go_back)
+        self.back_button.pack()
         
         ttk.Label(self, text="Производственные календари").pack(pady=10)
         self.create_table()

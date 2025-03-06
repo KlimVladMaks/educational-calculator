@@ -3,6 +3,7 @@ from tkinter import ttk
 from frames.BaseFrame import BaseFrame
 from database.Database import Database
 from widgets.BackButton import BackButton
+from widgets.stages_constructor.StagesConstructor import StagesConstructor
 
 
 class AddProgramFrame(BaseFrame):
@@ -17,65 +18,62 @@ class AddProgramFrame(BaseFrame):
     
     def create_frame(self):
         self.back_button = BackButton(self.master, command=self.go_back)
+        self.back_button.pack()
 
-        ttk.Label(self, text="Добавить учебную программу").pack(pady=10)
+        self.create_canvas()
 
-        ttk.Label(self, text="Название:").pack(pady=(10, 0))
-        self.name_entry = ttk.Entry(self, width=50)
+        ttk.Label(self.scrollable_frame, text="Добавить учебную программу").pack(pady=10)
+
+        ttk.Label(self.scrollable_frame, text="Название программы:").pack(pady=(10, 0))
+        self.name_entry = ttk.Entry(self.scrollable_frame, width=50)
         self.name_entry.pack(pady=(0, 10))
 
-        self.input_duration_frame = ttk.Frame(self)
-        self.input_duration_frame.pack(pady=10)
+        self.stages_constructor = StagesConstructor(self.scrollable_frame, self.canvas)
+        self.stages_constructor.pack()
 
-        ttk.Label(self.input_duration_frame, text="Теория:").grid(row=0, column=0, padx=5)
-        ttk.Label(self.input_duration_frame, text="Практика:").grid(row=0, column=1, padx=5)
-        ttk.Label(self.input_duration_frame, text="Экзамены:").grid(row=0, column=2, padx=5)
+        ttk.Label(self.scrollable_frame, text="Всего учебных дней: 0").pack(pady=10)
 
-        self.theory_entry = ttk.Entry(self.input_duration_frame)
-        self.theory_entry.grid(row=1, column=0, padx=5)
-        self.practice_entry = ttk.Entry(self.input_duration_frame)
-        self.practice_entry.grid(row=1, column=1, padx=5)
-        self.exams_entry = ttk.Entry(self.input_duration_frame)
-        self.exams_entry.grid(row=1, column=2, padx=5)
-
-        self.theory_entry.bind("<KeyRelease>", self.update_total)
-        self.practice_entry.bind("<KeyRelease>", self.update_total)
-        self.exams_entry.bind("<KeyRelease>", self.update_total)
-
-        self.total_label = ttk.Label(self, text=f"Всего (дней): 0")
-        self.total_label.pack(pady=10)
-
-        ttk.Button(self, text="Добавить учебную программу", command=self.add_program).pack(pady=10)
+        ttk.Button(self.scrollable_frame,
+                   text="Сохранить учебную программу",
+                   command=self.save_program).pack(pady=10)
     
     def go_back(self):
         self.back_button.destroy()
         self.destroy()
         self.parent_frame.display_frame()
     
-    def update_total(self, event=None):
-        try:
-            theory = int(self.theory_entry.get()) if self.theory_entry.get() else 0
-            practice = int(self.practice_entry.get()) if self.practice_entry.get() else 0
-            exams = int(self.exams_entry.get()) if self.exams_entry.get() else 0
-            total = theory + practice + exams
-            self.total_label.config(text=f"Всего (дней): {total}")
-        except ValueError:
-            self.total_label.config(text="Всего (дней): 0")
+    def on_mouse_wheel(self, event):
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
     
-    def add_program(self):
-        new_program_data = []
-
-        name = str(self.name_entry.get())
-        theory = int(self.theory_entry.get())
-        practice = int(self.practice_entry.get())
-        exams = int(self.exams_entry.get())
-
-        new_program_data.append(name)
-        new_program_data.append(theory)
-        new_program_data.append(practice)
-        new_program_data.append(exams)
-
-        self.db.programs.add(new_program_data)
-
-        self.parent_frame.update()
+    def save_program(self):
+        program_name = self.name_entry.get()
+        stages = self.stages_constructor.get_stages()
+        self.db.programs.add([program_name, stages])
+        self.parent_frame.update_table()
         self.go_back()
+
+    def create_canvas(self):
+        self.window_width = self.master.winfo_width()
+        self.window_height = self.master.winfo_height()
+        self.canvas = tk.Canvas(self,
+                                borderwidth=0,
+                                width=self.window_width - 25,
+                                height=self.window_height,
+                                highlightthickness=0)
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas, width=300)
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(
+                scrollregion=self.canvas.bbox("all")
+            )
+        )
+
+        self.canvas.create_window((150, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        self.canvas.bind_all("<MouseWheel>", self.on_mouse_wheel)

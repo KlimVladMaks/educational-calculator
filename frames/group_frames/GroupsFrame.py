@@ -157,7 +157,7 @@ class GroupsFrame(BaseFrame):
         item = selected_items[0]
         item_data = self.table.tree.item(item)
         group_data = item_data['values']
-        self.prepare_files_for_calendar_app(group_data)
+        # self.prepare_files_for_calendar_app(group_data)
         new_window = tk.Toplevel(self.master)
         new_window.grab_set()
         CalendarApp(new_window)

@@ -1,7 +1,1 @@
-[
-    {
-        "start_date": "2025-01-01",
-        "end_date": "2025-03-27",
-        "type": "theory"
-    }
-]
+[{"start_date":"2025-02-15","end_date":"2025-02-25","type":"theory"},{"start_date":"2025-02-26","end_date":"2025-02-26","type":"consultation"},{"start_date":"2025-02-27","end_date":"2025-02-27","type":"exam"},{"start_date":"2025-02-28","end_date":"2025-03-08","type":"practice"},{"start_date":"2025-03-16","end_date":"2025-03-26","type":"trial_ride"},{"start_date":"2025-04-06","end_date":"2025-04-26","type":"exam"}]

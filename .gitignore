@@ -16,3 +16,4 @@ example_calendar.json
 main.spec
 build/
 test_data/
+database.json

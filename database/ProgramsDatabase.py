@@ -123,3 +123,13 @@ class ProgramsDatabase:
                     del programs[i]
                     break
         self.save_data()
+
+    def get_stages_list(self, program_name: str) -> list[list[str]]:
+        """
+        Получить список учебных этапов для учебной программы в формате списка
+        [["Название_этапа_1", Число_дней_1], ["Название_этапа_2", Число_дней_2], ...]
+        """
+        self.load_data()
+        for program in self.data.get('programs', []):
+            if program["name"] == program_name:
+                return program["stages"]

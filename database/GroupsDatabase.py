@@ -5,18 +5,19 @@ class GroupsDatabase:
     """
     База данных для работы с учебными группами.
     """
+
     def __init__(self):
         self.filename = 'database.json'
         self.load_data()
-    
+
     def load_data(self):
         with open(self.filename, 'r', encoding='utf-8') as file:
             self.data = json.load(file)
-    
+
     def save_data(self):
         with open(self.filename, 'w', encoding='utf-8') as file:
             json.dump(self.data, file, ensure_ascii=False, indent=4)
-    
+
     def get_all(self):
         self.load_data()
         groups = self.data.get('groups', [])
@@ -30,7 +31,7 @@ class GroupsDatabase:
                 group['start_date']
             ])
         return result
-    
+
     def get(self, group_id):
         self.load_data()
         groups = self.data.get('groups', [])
@@ -44,7 +45,7 @@ class GroupsDatabase:
                     group["program"],
                     group["start_date"]
                 ]
-    
+
     def delete(self, name):
         self.load_data()
         groups = self.data.get('groups', [])
@@ -54,7 +55,7 @@ class GroupsDatabase:
                 self.save_data()
                 return True
         return False
-    
+
     def add(self, group_data):
         name, calendar, program, edu_type, start_date = group_data
         groups = self.data.get('groups', [])
@@ -67,7 +68,7 @@ class GroupsDatabase:
         }
         groups.append(new_group)
         self.save_data()
-    
+
     def delete_by_calendar(self, calendar_name):
         self.load_data()
         groups = self.data.get('groups', [])
@@ -83,7 +84,7 @@ class GroupsDatabase:
             if group["program"] == program_name:
                 del groups[i]
         self.save_data()
-    
+
     def update_program(self, old_program_name, new_program_name):
         self.load_data()
         groups = self.data.get('groups', [])
@@ -106,7 +107,7 @@ class GroupsDatabase:
                 group["start_date"] = upd_start_date
                 break
         self.save_data()
-    
+
     def delete_by_edu_type(self, edu_type):
         self.load_data()
         groups = self.data.get("groups", [])
@@ -114,10 +115,31 @@ class GroupsDatabase:
             if group["edu_type"] == edu_type:
                 del groups[i]
         self.save_data()
-    
+
     def update_edu_type(self, old_edu_type, new_edu_type):
         self.load_data()
         for group in self.data.get("groups", []):
             if group["edu_type"] == old_edu_type:
                 group["edu_type"] = new_edu_type
         self.save_data()
+
+    def get_group_data_list(self, group_name: str) -> list[str]:
+        """
+        Получить все данные учебной группы в виде списка.
+        Индексы данных в списке:
+        0 - name
+        1 - calendar
+        2 - program
+        3 - edu_type
+        4 - start_date
+        """
+        self.load_data()
+        for group in self.data.get("groups", []):
+            if group["name"] == group_name:
+                return [
+                    group["name"],
+                    group["calendar"],
+                    group["program"],
+                    group["edu_type"],
+                    group["start_date"]
+                ]

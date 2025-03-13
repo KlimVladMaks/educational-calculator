@@ -1,19 +1,24 @@
 import tkinter as tk
 from tkinter import ttk
 from widgets.stages_constructor.StageInput import StageInput
+from database.Database import Database
 
 
 class StagesConstructor:
     """
     Конструктор этапов учебной программы.
     """
-    def __init__(self, main_frame, canvas):
+    def __init__(self, main_frame, canvas, init_program_name=None):
         self.main_frame = main_frame
         self.canvas = canvas
+        self.db = Database()
         self.sc_frame = ttk.Frame(main_frame)
         self.stages_list = []
         self.add_stage_button = ttk.Button()
         self.add_new_stage()
+
+        if init_program_name is not None:
+            self.set_init_values(init_program_name)
     
     def pack(self):
         self.sc_frame.pack(pady=10)
@@ -25,7 +30,8 @@ class StagesConstructor:
         new_stage = StageInput(self.sc_frame,
                                index, self.move_stage_up,
                                self.move_stage_down,
-                               self.delete_stage)
+                               self.delete_stage,
+                               self.on_mouse_wheel)
         new_stage.pack()
         self.stages_list.append(new_stage)
 
@@ -94,3 +100,18 @@ class StagesConstructor:
             stage_data.append(int(stage.days_entry.get()))
             stages_data.append(stage_data)
         return stages_data
+
+    def set_init_values(self, init_program_name):
+        self.stages_list[0].input_frame.destroy()
+        self.stages_list.pop()
+        stages = self.db.programs.get_stages_list(init_program_name)
+        for stage in stages:
+            self.add_new_stage()
+            self.stages_list[-1].name_combobox.set(stage[0])
+            self.stages_list[-1].days_entry.insert(0, str(stage[1]))
+
+    def on_mouse_wheel(self, event):
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        return "break"
+
+

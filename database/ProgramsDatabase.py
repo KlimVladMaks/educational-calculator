@@ -140,3 +140,17 @@ class ProgramsDatabase:
             if program["name"] == program_name:
                 return False
         return True
+
+    def update_program_data(self, old_program_name, new_program_data):
+        self.load_data()
+        new_name, new_stages = new_program_data
+        for program in self.data.get('programs', []):
+            if program["name"] == old_program_name:
+                program["name"] = new_name
+                program["stages"] = new_stages
+                break
+        self.save_data()
+        self.parent_db.groups.update_program(old_program_name, new_name)
+
+
+

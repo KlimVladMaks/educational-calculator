@@ -8,12 +8,13 @@ class StageInput:
     Поле ввода одного этапа учебной программы.
     (Используется в конструкторе этапов учебной программы).
     """
-    def __init__(self, sc_frame, index, move_up_func, move_down_func, delete_func):
+    def __init__(self, sc_frame, index, move_up_func, move_down_func, delete_func, scroll_func):
         self.sc_frame = sc_frame
         self.index = index
         self.move_up_func = move_up_func
         self.move_down_func = move_down_func
         self.delete_func = delete_func
+        self.scroll_func = scroll_func
         self.input_frame = ttk.Frame(self.sc_frame)
         self.db = Database()
 
@@ -26,6 +27,7 @@ class StageInput:
         self.names_list = self.db.edu_stages.get_all()
         self.name_combobox = ttk.Combobox(self.input_name_frame, values=self.names_list, state="readonly")
         self.name_combobox.pack()
+        self.name_combobox.bind("<MouseWheel>", self.scroll_func)
 
         self.input_days_frame = ttk.Frame(self.input_frame)
         self.input_days_frame.grid(row=0, column=2, padx=5)

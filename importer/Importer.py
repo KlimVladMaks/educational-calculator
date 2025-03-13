@@ -3,7 +3,7 @@ import datetime
 from docx import Document
 from docx.shared import Pt
 from openpyxl import Workbook
-from StageRange import StageRange
+from importer.StageRange import StageRange
 
 
 class Importer:
@@ -343,9 +343,6 @@ class Importer:
             wb.save(xlsx_file_path)
             print(f"Таблица успешно экспортирована в Excel: {xlsx_file_path}")
         except Exception as e:
-<<<<<<< Updated upstream:importer/Importer.py
-            print("Ошибка сохранения Excel файла:", e)
-=======
             print("Ошибка сохранения Excel:", e)
 
     def format_theory_practice_range(self, stage_name, start_date, end_date, practice=False):
@@ -473,19 +470,3 @@ class Importer:
                 run.font.size = Pt(10)
         doc.save(docx_file_path)
         print(f"Детальный отчёт по группам экспортирован в {docx_file_path}")
-
-
-# Пример использования класса Importer с файлом database.json
-if __name__ == "__main__":
-    importer = Importer("database.json")
-
-    # Пример 1: Выгружаем все группы в docx и xlsx
-    importer.export_docx("all_groups.docx")
-    importer.export_excel("all_groups.xlsx")
-
-    # Пример 2: Выгружаем только выбранные группы (например, М-248)
-    importer.export_docx("m248_only_table.docx", selected_groups=["М-248"])
-    importer.export_excel("m248_only.xlsx", selected_groups=["М-248"])
-    importer.export_group_details_docx("detailed_groups.docx")                
-    importer.export_group_details_docx("only_m248.docx", selected_groups=["М-248"])
->>>>>>> Stashed changes:importer/importer.py

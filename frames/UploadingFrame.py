@@ -34,11 +34,11 @@ class UploadingFrame(BaseFrame):
                                                  filetypes=[("Word documents", "*.docx"),
                                                             ("All files", "*.*")])
         if file_path:
-            self.importer.import_to_word(file_path)
+            self.importer.export_docx(file_path)
     
     def upload_to_xlsx(self):
         file_path = filedialog.asksaveasfilename(defaultextension=".xlsx",
                                                  filetypes=[("Excel files", "*.xlsx"),
                                                             ("All files", "*.*")])
         if file_path:
-            self.importer.import_to_excel(file_path)
+            self.importer.export_excel(file_path)

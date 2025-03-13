@@ -20,7 +20,7 @@ class AddProgramFrame(BaseFrame):
         self.back_button = BackButton(self.master, command=self.go_back)
         self.back_button.pack()
 
-        self.create_canvas()
+        self.create_scrolling_mechanic()
 
         ttk.Label(self.scrollable_frame, text="Добавить учебную программу").pack(pady=10)
 
@@ -31,7 +31,7 @@ class AddProgramFrame(BaseFrame):
         self.stages_constructor = StagesConstructor(self.scrollable_frame, self.canvas)
         self.stages_constructor.pack()
 
-        ttk.Label(self.scrollable_frame, text="Всего учебных дней: 0").pack(pady=10)
+        self.days_label = ttk.Label(self.scrollable_frame, text="Всего учебных дней: -").pack(pady=10)
 
         ttk.Button(self.scrollable_frame,
                    text="Сохранить учебную программу",
@@ -39,6 +39,7 @@ class AddProgramFrame(BaseFrame):
     
     def go_back(self):
         self.back_button.destroy()
+        self.canvas.unbind_all("<MouseWheel>")
         self.destroy()
         self.parent_frame.display_frame()
     
@@ -46,13 +47,38 @@ class AddProgramFrame(BaseFrame):
         self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
     
     def save_program(self):
-        program_name = self.name_entry.get()
-        stages = self.stages_constructor.get_stages()
+        program_name = None
+        stages = None
+        try:
+            program_name = self.name_entry.get()
+            stages = self.stages_constructor.get_stages()
+        except Exception as e:
+            tk.messagebox.showerror("Ошибка", "Некорректный ввод данных.")
+            return
+
+        if program_name == "":
+            tk.messagebox.showerror("Ошибка", "Пустое название программы.")
+            return
+        
+        if not self.db.programs.is_unique_program_name(program_name):
+            tk.messagebox.showerror("Ошибка", "Неуникальное название программы.")
+            return
+        
+        if not self.is_stages_list_correct(stages):
+            tk.messagebox.showerror("Ошибка", "Не выбран этап или отрицательное число дней.")
+            return
+
         self.db.programs.add([program_name, stages])
         self.parent_frame.update_table()
         self.go_back()
+    
+    def is_stages_list_correct(self, stages):
+        for stage in stages:
+            if (stage[0] == "") or (stage[1] < 1):
+                return False
+        return True
 
-    def create_canvas(self):
+    def create_scrolling_mechanic(self):
         self.window_width = self.master.winfo_width()
         self.window_height = self.master.winfo_height()
         self.canvas = tk.Canvas(self,
@@ -77,3 +103,6 @@ class AddProgramFrame(BaseFrame):
         self.scrollbar.pack(side="right", fill="y")
 
         self.canvas.bind_all("<MouseWheel>", self.on_mouse_wheel)
+
+    def update_days_label(self, number_of_days):
+        self.days_label.config(text=f"Всего учебных дней: {str(number_of_days)}")

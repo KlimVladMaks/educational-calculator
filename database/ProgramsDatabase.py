@@ -133,3 +133,10 @@ class ProgramsDatabase:
         for program in self.data.get('programs', []):
             if program["name"] == program_name:
                 return program["stages"]
+
+    def is_unique_program_name(self, program_name):
+        self.load_data()
+        for program in self.data.get('programs', []):
+            if program["name"] == program_name:
+                return False
+        return True

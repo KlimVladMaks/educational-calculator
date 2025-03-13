@@ -26,6 +26,7 @@ class UploadingFrame(BaseFrame):
         ttk.Button(self, text="Выгрузить в XLSX", command=self.upload_to_xlsx).pack(pady=10)
 
     def go_back(self):
+        self.back_button.destroy()
         self.pack_forget()
         self.parent_frame.display_frame()
     

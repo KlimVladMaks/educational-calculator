@@ -152,9 +152,8 @@ class GroupsFrame(BaseFrame):
         item = selected_items[0]
         item_data = self.table.tree.item(item)
         values = item_data["values"]
-        group_id = (str(values[0]), str(values[1]), str(values[2]))
-        group_data = self.db.groups.get(group_id)
-        edit_group_frame = EditGroupFrame(self.master, self, group_data)
+        group_name = values[0]
+        edit_group_frame = EditGroupFrame(self.master, self, group_name)
         edit_group_frame.display_frame()
 
     def open_calendar_app(self):

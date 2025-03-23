@@ -12,7 +12,7 @@ class CalendarsDatabase:
     """
 
     def __init__(self, parent_db):
-        self.parent_db = parent_db
+        self.db = parent_db
         self.filename = 'database.json'
         self.load_data()
     
@@ -57,7 +57,7 @@ class CalendarsDatabase:
                 del calendars[i]
                 break
         self.save_data()
-        self.parent_db.groups.delete_by_calendar(calendar_name)
+        self.db.groups.delete_by_calendar(calendar_name)
     
     def add(self, calendar_data):
         name, start_date, end_date, days_off_list = calendar_data
@@ -89,3 +89,17 @@ class CalendarsDatabase:
         for calendar in self.data.get('calendars', []):
             names.append(calendar["name"])
         return names
+
+    def update(self, calendar_name, updated_calendar_data):
+        self.load_data()
+        name, start_date, end_date, days_off_list = updated_calendar_data
+        for calendar in self.data.get("calendars", []):
+            if calendar["name"] == calendar_name:
+                calendar["name"] = name
+                calendar["start_date"] = start_date
+                calendar["end_date"] = end_date
+                calendar["days_off_list"] = days_off_list
+                break
+        self.save_data()
+        if calendar_name != name:
+            self.db.groups.update_calendar(calendar_name, name)

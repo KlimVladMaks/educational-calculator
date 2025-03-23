@@ -152,7 +152,7 @@ class GroupsFrame(BaseFrame):
         item = selected_items[0]
         item_data = self.table.tree.item(item)
         values = item_data["values"]
-        group_name = values[0]
+        group_name = str(values[0])
         edit_group_frame = EditGroupFrame(self.master, self, group_name)
         edit_group_frame.display_frame()
 

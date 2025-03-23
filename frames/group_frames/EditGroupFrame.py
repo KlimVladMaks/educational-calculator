@@ -74,7 +74,7 @@ class EditGroupFrame(BaseFrame):
             self, text="Дата окончания обучения: -")
         self.end_date_label.pack(pady=(5, 10))
 
-        ttk.Button(self, text="Сохранить учебную группу",
+        ttk.Button(self, text="Сохранить изменения",
                    command=self.save_group).pack(pady=10)
         
     def go_back(self):

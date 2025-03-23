@@ -4,6 +4,7 @@ from tkinter import filedialog
 import json
 from frames.BaseFrame import BaseFrame
 from frames.calendar_frames.AddCalendarFrame import AddCalendarFrame
+from frames.calendar_frames.EditCalendarFrame import EditCalendarFrame
 from widgets.Table import Table
 from database.Database import Database
 from widgets.Calculator import Calculator
@@ -75,6 +76,7 @@ class CalendarsFrame(BaseFrame):
     
     def create_context_menu(self):
         self.menu = tk.Menu(self, tearoff=0)
+        self.menu.add_command(label="Изменить", command=self.open_edit_calendar)
         self.menu.add_command(label="Удалить", command=self.delete_selected)
         self.table.tree.bind("<Button-3>", self.show_context_menu)
     
@@ -95,6 +97,15 @@ class CalendarsFrame(BaseFrame):
     def open_add_calendar(self):
         self.add_calendar_frame = AddCalendarFrame(self.master, self)
         self.add_calendar_frame.display_frame()
+    
+    def open_edit_calendar(self):
+        selected_items = self.table.tree.selection()
+        item = selected_items[0]
+        item_data = self.table.tree.item(item)
+        values = item_data["values"]
+        calendar_name = str(values[0])
+        self.edit_calendar_frame = EditCalendarFrame(self.master, self, calendar_name)
+        self.edit_calendar_frame.display_frame()
     
     def download_calendar(self):
         file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])

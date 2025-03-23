@@ -92,6 +92,13 @@ class GroupsDatabase:
             if group["program"] == old_program_name:
                 group["program"] = new_program_name
         self.save_data()
+    
+    def update_calendar(self, old_calendar_name, new_calendar_name):
+        self.load_data()
+        for group in self.data.get('groups', []):
+            if group["calendar"] == old_calendar_name:
+                group["calendar"] = new_calendar_name
+        self.save_data()
 
     def update(self, group_name, updated_group_data):
         self.load_data()

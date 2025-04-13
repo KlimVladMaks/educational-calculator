@@ -60,7 +60,9 @@ class Calculator:
         
         return result
 
-
+    def convert_date_to_dd_mm_yyyy(date_str):
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        return date_obj.strftime("%d.%m.%Y")
 
 
 

@@ -1,6 +1,7 @@
 import typing as tp
 import tkinter as tk
 from tkinter import ttk
+from datetime import datetime
 from frames.base_frame import BaseFrame
 
 
@@ -83,7 +84,10 @@ class Table:
         """
         for item in self.tree.get_children():
             self.tree.delete(item)
-        self.add_rows(new_rows)  
+        self.add_rows(new_rows)
+
+        self.current_sort_column = None
+        self.update_sorting_arrow()
 
     def sort_column(self, column_name: str) -> None:
         """
@@ -101,11 +105,7 @@ class Table:
             self.current_sort_column = column_name
         
         column_index = self.tree["columns"].index(column_name)
-        
-        data = []
-        for item in self.tree.get_children():
-            values = self.tree.item(item)["values"]
-            data.append((item, values))
+        data = [(item, self.tree.item(item)["values"]) for item in self.tree.get_children()]
         
         is_numeric = True
         for _, values in data:
@@ -115,12 +115,23 @@ class Table:
                 is_numeric = False
                 break
         
+        is_date = False
+        if not is_numeric:
+            is_date = True
+            for _, values in data:
+                date_str = str(values[column_index])
+                try:
+                    datetime.strptime(date_str, "%d.%m.%Y")
+                except ValueError:
+                    is_date = False
+                    break
+        
         if is_numeric:
-            def sort_key(x):
-                return x[1][column_index]
+            sort_key = lambda x: float(x[1][column_index])
+        elif is_date:
+            sort_key = lambda x: datetime.strptime(str(x[1][column_index]), "%d.%m.%Y")
         else:
-            def sort_key(x):
-                return str(x[1][column_index])
+            sort_key = lambda x: str(x[1][column_index]).lower()
         
         data.sort(key=sort_key, reverse=not self.sort_order)
 

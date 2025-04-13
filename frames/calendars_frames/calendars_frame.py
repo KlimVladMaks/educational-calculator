@@ -76,8 +76,8 @@ class CalendarsFrame(BaseFrame):
             total_days = Calculator.count_days_between_dates(calendar_dict["start_date"], calendar_dict["end_date"])
             days_off = len(calendar_dict["days_off_list"])
             working_days = total_days - days_off
-            table_row.append(calendar_dict["start_date"])
-            table_row.append(calendar_dict["end_date"])
+            table_row.append(Calculator.convert_date_to_dd_mm_yyyy(calendar_dict["start_date"]))
+            table_row.append(Calculator.convert_date_to_dd_mm_yyyy(calendar_dict["end_date"]))
             table_row.append(working_days)
             table_row.append(days_off)
             table_row.append(total_days)

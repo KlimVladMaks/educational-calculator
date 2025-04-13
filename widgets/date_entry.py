@@ -11,6 +11,9 @@ class DateEntry:
     def grid(self, row, column, padx):
         self.entry.grid(row=row, column=column, padx=padx)
     
+    def pack(self, pady):
+        self.entry.pack(pady=pady)
+    
     def get(self):
         date_str = self.entry.get()
         date_obj = datetime.strptime(date_str, "%d.%m.%Y")
@@ -19,7 +22,7 @@ class DateEntry:
     def insert(self, date_str):
         date_obj = datetime.strptime(date_str, "%Y-%m-%d")
         self.entry.insert(0, date_obj.strftime("%d.%m.%Y"))
-
+    
 
 
 

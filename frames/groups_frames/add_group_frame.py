@@ -2,6 +2,7 @@ from tkinter import ttk
 from frames.base_frame import BaseFrame
 from database.database import Database
 from widgets.back_button import BackButton
+from widgets.date_entry import DateEntry
 
 
 class AddGroupFrame(BaseFrame):
@@ -49,7 +50,7 @@ class AddGroupFrame(BaseFrame):
         self.edu_type_combobox.grid(row=1, column=2, padx=10)
 
         ttk.Label(self, text="Дата начала обучения:").pack(pady=(10, 0))
-        self.start_date_entry = ttk.Entry(self)
+        self.start_date_entry = DateEntry(self)
         self.start_date_entry.pack(pady=(0, 10))
 
         self.study_days_label = ttk.Label(self, text="Дней обучения: -")

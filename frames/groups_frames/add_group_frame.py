@@ -1,25 +1,20 @@
-import tkinter as tk
 from tkinter import ttk
-from frames.BaseFrame import BaseFrame
-from database.Database import Database
-from widgets.Calculator import Calculator
-from widgets.BackButton import BackButton
+from frames.base_frame import BaseFrame
+from database.database import Database
+from widgets.back_button import BackButton
 
 
 class AddGroupFrame(BaseFrame):
-    """
-    Фрейм для добавления новой учебной группы.
-    """
 
     def __init__(self, master, parent_frame):
         super().__init__(master)
         self.parent_frame = parent_frame
         self.db = Database()
         self.create_frame()
-
+    
     def create_frame(self):
         self.back_button = BackButton(self.master, command=self.go_back)
-        self.back_button.pack()
+        self.back_button.place()
 
         ttk.Label(self, text="Добавить учебную группу").pack(pady=10)
 
@@ -30,16 +25,13 @@ class AddGroupFrame(BaseFrame):
         self.comboboxes_frame = ttk.Frame(self)
         self.comboboxes_frame.pack(pady=10)
 
-        ttk.Label(self.comboboxes_frame, text="Выберите календарь:").grid(
-            row=0, column=0, padx=10, pady=5)
-        ttk.Label(self.comboboxes_frame, text="Выберите программу:").grid(
-            row=0, column=1, padx=10, pady=5)
-        ttk.Label(self.comboboxes_frame, text="Выберите вид обучения:").grid(
-            row=0, column=2, padx=10, pady=5)
+        ttk.Label(self.comboboxes_frame, text="Выберите календарь:").grid(row=0, column=0, padx=10, pady=5)
+        ttk.Label(self.comboboxes_frame, text="Выберите программу:").grid(row=0, column=1, padx=10, pady=5)
+        ttk.Label(self.comboboxes_frame, text="Выберите вид обучения:").grid(row=0, column=2, padx=10, pady=5)
 
-        self.calendars_names = self.db.calendars.get_all_names()
-        self.programs_names = self.db.programs.get_all_names()
-        self.edu_types = self.db.edu_types.get_all()
+        self.calendars_names = self.db.calendars.get_all_calendars_names()
+        self.programs_names = self.db.programs.get_all_programs_names()
+        self.edu_types = self.db.edu_types.get_all_edu_types()
 
         self.calendar_combobox = ttk.Combobox(self.comboboxes_frame,
                                               values=self.calendars_names,
@@ -61,21 +53,21 @@ class AddGroupFrame(BaseFrame):
         self.start_date_entry.pack(pady=(0, 10))
 
         self.study_days_label = ttk.Label(self, text="Дней обучения: -")
-        self.study_days_label.pack(pady=(10, 5))
+        self.study_days_label.pack(pady=(10, 3))
+        self.days_off_label = ttk.Label(self, text="Выходных дней: -")
+        self.days_off_label.pack(pady=3)
         self.total_days_label = ttk.Label(self, text="Всего дней: -")
-        self.total_days_label.pack(pady=5)
-        self.end_date_label = ttk.Label(
-            self, text="Дата окончания обучения: -")
-        self.end_date_label.pack(pady=(5, 10))
+        self.total_days_label.pack(pady=3)
+        self.end_date_label = ttk.Label(self, text="Дата окончания обучения: -")
+        self.end_date_label.pack(pady=(3, 10))
 
-        ttk.Button(self, text="Сохранить учебную группу",
-                   command=self.save_group).pack(pady=10)
-
+        ttk.Button(self, text="Сохранить учебную группу", command=self.save_group).pack(pady=10)
+    
     def go_back(self):
         self.back_button.destroy()
         self.destroy()
         self.parent_frame.display_frame()
-
+    
     def save_group(self):
         new_group_data = []
 
@@ -91,7 +83,14 @@ class AddGroupFrame(BaseFrame):
         new_group_data.append(edu_type)
         new_group_data.append(start_date)
 
-        self.db.groups.add(new_group_data)
-
+        self.db.groups.add_new_group(new_group_data)
         self.parent_frame.update_table()
         self.go_back()
+
+
+
+
+
+
+
+

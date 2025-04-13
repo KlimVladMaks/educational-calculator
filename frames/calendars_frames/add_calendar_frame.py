@@ -4,6 +4,7 @@ from frames.base_frame import BaseFrame
 from database.database import Database
 from widgets.back_button import BackButton
 from widgets.date_entry import DateEntry
+from widgets.dates_text import DatesText
 
 
 class AddCalendarFrame(BaseFrame):
@@ -39,7 +40,7 @@ class AddCalendarFrame(BaseFrame):
 
         self.days_off_label = ttk.Label(self, text="Даты нерабочих дней")
         self.days_off_label.pack(pady=(10, 0))
-        self.days_off_entry = tk.Text(self, width=50, height=7)
+        self.days_off_entry = DatesText(self, width=50, height=7)
         self.days_off_entry.pack(pady=(0, 10))
 
         ttk.Button(self, text="Сохранить производственный календарь", command=self.save_calendar).pack(pady=10)
@@ -53,8 +54,7 @@ class AddCalendarFrame(BaseFrame):
         name = self.name_entry.get()
         start_date = self.start_date_entry.get()
         end_date = self.end_date_entry.get()
-        days_off_text = self.days_off_entry.get("1.0", tk.END)
-        days_off_list = [line.strip() for line in days_off_text.splitlines() if line.strip()]
+        days_off_list = self.days_off_entry.get_dates_list()
         new_calendar_data = [name, start_date, end_date, days_off_list]
         self.db.calendars.add_new_calendar(new_calendar_data)
         self.parent_frame.update_table()

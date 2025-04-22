@@ -160,42 +160,69 @@ class Table:
         self.table_frame.destroy()
 
     def on_table_click(self, event) -> None:
+        """
+        Снимает выделение со строк таблицы при клике на пустое место в таблице
+        """
         region = self.tree.identify_region(event.x, event.y)
         if region == "nothing":
             self.tree.selection_remove(self.tree.selection())
 
     def show_menu(self, event):
+        """
+        Выводит меню при событии, направленном на одну из строк таблицы.
+        """
         row_id = self.tree.identify_row(event.y)
         if row_id:
             self.tree.selection_set(row_id)
             self.menu.post(event.x_root, event.y_root)
 
     def add_menu_command(self, label, command):
+        """
+        Добавляет команду в меню.
+        """
         self.menu.add_command(label=label, command=command)
 
     def delete_selected(self):
+        """
+        Удаляет выделенную строку.
+        """
         selected_items = self.tree.selection()
         selected_item = selected_items[0]
         self.tree.delete(selected_item)
 
     def get_selected_row(self):
+        """
+        Возвращает данные о выделенной строке таблицы.
+        """
         selected_items = self.tree.selection()
         selected_item = selected_items[0]
         item_data = self.tree.item(selected_item)
         return item_data["values"]
 
     def bind(self, sequence, func):
+        """
+        Привязывает функцию к таблице, реализующуюся при заданном действии.
+        """
         self.tree.bind(sequence, func)
 
     def lock(self):
+        """
+        Блокирует таблицу.
+        """
         self.tree.bind("<Button-1>", lambda e: "break")
         self.tree.bind("<Button-3>", lambda e: "break")
 
     def unlock(self):
+        """
+        Разблокирует таблицу.
+        """
         self.tree.bind("<Button-1>", self.on_table_click)
         self.tree.bind("<Button-3>", self.show_menu)
 
     def remove_selections(self):
+        """
+        Снимает выделение со всех выделенных строк таблицы.
+        """
         selected_items = self.tree.selection()
         for item in selected_items:
             self.tree.selection_remove(item)

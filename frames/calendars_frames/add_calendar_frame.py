@@ -1,3 +1,5 @@
+import json
+from datetime import datetime
 import tkinter as tk
 from tkinter import ttk
 from frames.base_frame import BaseFrame
@@ -5,6 +7,7 @@ from database.database import Database
 from widgets.back_button import BackButton
 from widgets.date_entry import DateEntry
 from widgets.dates_text import DatesText
+from frames.calendar_choice_frame import CalendarApp
 
 
 class AddCalendarFrame(BaseFrame):
@@ -40,6 +43,7 @@ class AddCalendarFrame(BaseFrame):
 
         self.days_off_label = ttk.Label(self, text="Даты нерабочих дней")
         self.days_off_label.pack(pady=(10, 0))
+        ttk.Button(self, text="Выбрать", command=self.open_calendar_app).pack(pady=(0, 5))
         self.days_off_entry = DatesText(self, width=50, height=7)
         self.days_off_entry.pack(pady=(0, 10))
 
@@ -60,8 +64,17 @@ class AddCalendarFrame(BaseFrame):
         self.parent_frame.update_table()
         self.go_back()
 
-
-
+    def open_calendar_app(self):
+        new_window = tk.Toplevel(self.master)
+        new_window.grab_set()
+        CalendarApp(new_window)
+        new_window.wait_window()
+        
+        with open("./calendar_app/days_off.json", "r", encoding="utf-8") as file:
+            days_off_data = json.load(file)
+        days_off_list = sorted(days_off_data["Выходной"], key=lambda date: datetime.strptime(date, '%Y-%m-%d'))
+        self.days_off_entry.delete()
+        self.days_off_entry.insert(days_off_list)
 
 
 

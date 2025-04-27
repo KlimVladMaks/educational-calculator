@@ -78,10 +78,10 @@ class CalendarApp:
         Сохранение в файлы JSON введенных мероприятий.
         '''
         days_off = {"Выходной": list(self.selected_dates)}
-        with open('days_off.json', 'w', encoding='utf-8') as file:
+        with open('./calendar_app/days_off.json', 'w', encoding='utf-8') as file:
             json.dump(days_off, file, ensure_ascii=False, indent=4)
 
-        with open('study_periods.json', 'w', encoding='utf-8') as file:
+        with open('./calendar_app/study_periods.json', 'w', encoding='utf-8') as file:
             json.dump(self.study_periods, file, ensure_ascii=False, indent=4)
 
         messagebox.showinfo("Сохранение", "Даты успешно сохранены в файлы.")

@@ -26,6 +26,9 @@ class DatesText:
             date_obj = datetime.strptime(date, "%Y-%m-%d")
             dates_list_dd_mm_yyyy.append(date_obj.strftime("%d.%m.%Y"))
         self.text.insert("1.0", "\n".join(dates_list_dd_mm_yyyy))
+    
+    def delete(self):
+        self.text.delete("1.0", tk.END)
 
 
 

@@ -28,7 +28,10 @@ class StageInput:
         self.input_days_frame = ttk.Frame(self.frame)
         self.input_days_frame.grid(row=0, column=2, padx=5)
         ttk.Label(self.input_days_frame, text="Число дней:").pack()
-        self.days_entry = ttk.Entry(self.input_days_frame)
+
+        validate_command = sc_frame.register(self.validate_positive_integer)
+        self.days_entry = ttk.Entry(self.input_days_frame, validate="key", validatecommand=(validate_command, '%P'))
+        
         self.days_entry.pack()
 
         ttk.Button(self.frame, text="↑", width=3, command=self.move_up).grid(row=0, column=3, padx=5)
@@ -54,6 +57,14 @@ class StageInput:
     def update_index(self, new_index: int):
         self.index = new_index
         self.index_label["text"] = f"{str(self.index + 1)})"
+
+    def validate_positive_integer(self, new_value):
+        if new_value == "":
+            return True
+        if new_value.isdigit():
+            return True
+        return False
+
 
 
 

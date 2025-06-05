@@ -1,8 +1,10 @@
 from tkinter import ttk
+from datetime import datetime
 from frames.base_frame import BaseFrame
 from database.database import Database
 from widgets.back_button import BackButton
 from widgets.date_entry import DateEntry
+from widgets.calculator import Calculator
 
 
 class AddGroupFrame(BaseFrame):
@@ -38,11 +40,13 @@ class AddGroupFrame(BaseFrame):
                                               values=self.calendars_names,
                                               state="readonly")
         self.calendar_combobox.grid(row=1, column=0, padx=10)
+        self.calendar_combobox.bind("<<ComboboxSelected>>", lambda event: self.update_preview_labels())
 
         self.program_combobox = ttk.Combobox(self.comboboxes_frame,
                                              values=self.programs_names,
                                              state="readonly")
         self.program_combobox.grid(row=1, column=1, padx=10)
+        self.program_combobox.bind("<<ComboboxSelected>>", lambda event: self.update_preview_labels())
 
         self.edu_type_combobox = ttk.Combobox(self.comboboxes_frame,
                                               values=self.edu_types,
@@ -52,6 +56,7 @@ class AddGroupFrame(BaseFrame):
         ttk.Label(self, text="Дата начала обучения:").pack(pady=(10, 0))
         self.start_date_entry = DateEntry(self)
         self.start_date_entry.pack(pady=(0, 10))
+        self.start_date_entry.bind("<KeyRelease>", lambda event: self.update_preview_labels())
 
         self.study_days_label = ttk.Label(self, text="Дней обучения: -")
         self.study_days_label.pack(pady=(10, 3))
@@ -87,8 +92,31 @@ class AddGroupFrame(BaseFrame):
         self.db.groups.add_new_group(new_group_data)
         self.parent_frame.update_table()
         self.go_back()
+    
+    def update_preview_labels(self):
+        try:
+            calendar = self.calendar_combobox.get()
+            program = self.program_combobox.get()
+            start_date = self.start_date_entry.get()
 
+            end_date = Calculator.calculate_end_date(calendar, program, start_date)
+            total_days = Calculator.count_days_between_dates(start_date, end_date)
+            study_days = self.db.programs.get_total_days(program)
+            days_off = total_days - study_days
 
+            date_obj = datetime.strptime(end_date, "%Y-%m-%d")
+            end_date = date_obj.strftime("%d.%m.%Y")
+
+            self.study_days_label.config(text=f"Дней обучения: {study_days}")
+            self.days_off_label.config(text=f"Выходных дней: {days_off}")
+            self.total_days_label.config(text=f"Всего дней: {total_days}")
+            self.end_date_label.config(text=f"Дата окончания обучения: {end_date}")
+
+        except:
+            self.study_days_label.config(text=f"Дней обучения: -")
+            self.days_off_label.config(text=f"Выходных дней: -")
+            self.total_days_label.config(text=f"Всего дней: -")
+            self.end_date_label.config(text=f"Дата окончания обучения: -")
 
 
 

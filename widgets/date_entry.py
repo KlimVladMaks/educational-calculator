@@ -23,7 +23,8 @@ class DateEntry:
         date_obj = datetime.strptime(date_str, "%Y-%m-%d")
         self.entry.insert(0, date_obj.strftime("%d.%m.%Y"))
     
-
+    def bind(self, sequence, func) -> str:
+        self.entry.bind(sequence, func)
 
 
 

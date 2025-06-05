@@ -4,13 +4,14 @@ from database.database import Database
 
 class StageInput:
 
-    def __init__(self, sc_frame, index, scroll_func, delete_func, move_up_func, move_down_func):
+    def __init__(self, sc_frame, index, scroll_func, delete_func, move_up_func, move_down_func, update_label_func):
         self.sc_frame = sc_frame
         self.index = index
         self.scroll_func = scroll_func
         self.delete_func = delete_func
         self.move_up_func = move_up_func
         self.move_down_func = move_down_func
+        self.update_label_func = update_label_func
         self.db = Database()
         self.frame = ttk.Frame(self.sc_frame)
 
@@ -33,6 +34,8 @@ class StageInput:
         self.days_entry = ttk.Entry(self.input_days_frame, validate="key", validatecommand=(validate_command, '%P'))
         
         self.days_entry.pack()
+
+        self.days_entry.bind("<KeyRelease>", lambda event: self.update_label_func())
 
         ttk.Button(self.frame, text="↑", width=3, command=self.move_up).grid(row=0, column=3, padx=5)
         ttk.Button(self.frame, text="↓", width=3, command=self.move_down).grid(row=0, column=4, padx=5)

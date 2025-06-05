@@ -39,7 +39,9 @@ class AddProgramFrame(BaseFrame):
         self.name_entry = ttk.Entry(self.scrollable_frame, width=50)
         self.name_entry.pack(pady=(0, 10))
 
-        self.stages_constructor = StagesConstructor(self.scrollable_frame, self.on_mouse_wheel)
+        self.stages_constructor = StagesConstructor(self.scrollable_frame,
+                                                    self.on_mouse_wheel,
+                                                    self.update_study_days_label)
         self.stages_constructor.pack(pady=10)
 
         self.canvas.bind_all("<MouseWheel>", self.on_mouse_wheel)
@@ -69,6 +71,14 @@ class AddProgramFrame(BaseFrame):
         self.parent_frame.update_table()
         self.go_back()
     
+    def update_study_days_label(self):
+        try:
+            stages = self.stages_constructor.get_stages()
+            number_of_days = sum(stage[1] for stage in stages)
+            self.study_days_label.config(text=f"Всего учебных дней: {number_of_days}")
+        except Exception as e:
+            self.study_days_label.config(text="Всего учебных дней: -")
+
 
 
 

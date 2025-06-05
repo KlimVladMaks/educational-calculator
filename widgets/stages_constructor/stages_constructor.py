@@ -6,28 +6,30 @@ from widgets.stages_constructor.stage_input import StageInput
 
 class StagesConstructor:
     
-    def __init__(self, main_frame, scroll_func, init_program_name=None):
+    def __init__(self, main_frame, scroll_func, update_label_func, init_program_name=None):
         self.main_frame = main_frame
         self.scroll_func = scroll_func
+        self.update_label_func = update_label_func
         self.frame = ttk.Frame(main_frame)
         self.db = Database()
         self.stages_list: list[StageInput] = []
         self.add_stage_button = ttk.Button()
         if init_program_name is None:
-            self.add_new_stage()
+            self.add_new_stage(is_init=True)
         else:
             self.set_init_values(init_program_name)
 
     def pack(self, pady):
         self.frame.pack(pady=pady)
     
-    def add_new_stage(self):
+    def add_new_stage(self, is_init=False):
         self.add_stage_button.destroy()
 
         index = len(self.stages_list)
         new_stage = StageInput(self.frame, index,
                                self.scroll_func, self.delete_stage,
-                               self.move_stage_up, self.move_stage_down)
+                               self.move_stage_up, self.move_stage_down,
+                               self.update_label_func)
         new_stage.pack(pady=5)
         self.stages_list.append(new_stage)
 
@@ -37,6 +39,9 @@ class StagesConstructor:
         self.main_frame.update_idletasks()
         self.main_frame.master.yview_moveto(1)
 
+        if not is_init:
+            self.update_label_func()
+
     def delete_stage(self, index: int):
         self.stages_list.pop(index)
         new_index = 0
@@ -45,6 +50,7 @@ class StagesConstructor:
             new_index += 1
         if len(self.stages_list) == 0:
             self.add_new_stage()
+        self.update_label_func()
     
     def move_stage_up(self, index: int):
         if index == 0:
@@ -82,7 +88,7 @@ class StagesConstructor:
     def set_init_values(self, init_program_name):
         stages_data = self.db.programs.get_program_stages_list(init_program_name)
         for stage_data in stages_data:
-            self.add_new_stage()
+            self.add_new_stage(is_init=True)
             self.stages_list[-1].stage_combobox.set(stage_data[0])
             self.stages_list[-1].days_entry.insert(0, str(stage_data[1]))
 

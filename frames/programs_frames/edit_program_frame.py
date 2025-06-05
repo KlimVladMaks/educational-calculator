@@ -42,7 +42,9 @@ class EditProgramFrame(BaseFrame):
         self.name_entry.insert(0, self.old_program_name)
         self.name_entry.pack(pady=(0, 10))
 
-        self.stages_constructor = StagesConstructor(self.scrollable_frame, self.on_mouse_wheel,
+        self.stages_constructor = StagesConstructor(self.scrollable_frame,
+                                                    self.on_mouse_wheel,
+                                                    self.update_study_days_label,
                                                     init_program_name=self.old_program_name)
         self.stages_constructor.pack(pady=10)
 
@@ -50,6 +52,7 @@ class EditProgramFrame(BaseFrame):
 
         self.study_days_label = ttk.Label(self.scrollable_frame, text="Всего учебных дней: -")
         self.study_days_label.pack(pady=10)
+        self.update_study_days_label()
 
         ttk.Button(self.scrollable_frame, text="Сохранить учебную программу",
                    command=self.save_program).pack(pady=10)
@@ -72,6 +75,15 @@ class EditProgramFrame(BaseFrame):
         self.db.programs.update_program(self.old_program_name, [program_name, stages])
         self.parent_frame.update_table()
         self.go_back()
+    
+    def update_study_days_label(self):
+        try:
+            stages = self.stages_constructor.get_stages()
+            number_of_days = sum(stage[1] for stage in stages)
+            self.study_days_label.config(text=f"Всего учебных дней: {number_of_days}")
+        except Exception as e:
+            print(e)
+            self.study_days_label.config(text="Всего учебных дней: -")
 
 
 

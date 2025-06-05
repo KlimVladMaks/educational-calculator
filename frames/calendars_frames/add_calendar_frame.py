@@ -65,6 +65,9 @@ class AddCalendarFrame(BaseFrame):
         self.go_back()
 
     def open_calendar_app(self):
+        with open("./calendar_app/days_off.json", "w", encoding="utf-8") as file:
+            json.dump({"Выходной": []}, file)
+
         new_window = tk.Toplevel(self.master)
         new_window.grab_set()
         CalendarApp(new_window)
@@ -73,8 +76,10 @@ class AddCalendarFrame(BaseFrame):
         with open("./calendar_app/days_off.json", "r", encoding="utf-8") as file:
             days_off_data = json.load(file)
         days_off_list = sorted(days_off_data["Выходной"], key=lambda date: datetime.strptime(date, '%Y-%m-%d'))
-        self.days_off_entry.delete()
-        self.days_off_entry.insert(days_off_list)
+        
+        if days_off_list:
+            self.days_off_entry.delete()
+            self.days_off_entry.insert(days_off_list)
 
 
 

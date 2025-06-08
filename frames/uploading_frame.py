@@ -83,8 +83,9 @@ class UploadingFrame(BaseFrame):
         self.groups_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.groups_listbox.bind('<<ListboxSelect>>', self.update_groups_checkbox)
 
-        ttk.Button(self, text="Выгрузить в DOCX", command=self.upload_to_docx).pack(pady=10)
-        ttk.Button(self, text="Выгрузить в XLSX", command=self.upload_to_xlsx).pack(pady=10)
+        ttk.Button(self, text="Выгрузить в XLSX", command=self.upload_to_xlsx).pack(pady=(15, 5))
+        ttk.Button(self, text="Выгрузить в DOCX (таблица)", command=self.upload_to_docx_table).pack(pady=5)
+        ttk.Button(self, text="Выгрузить в DOCX (список)", command=self.upload_to_docx_list).pack(pady=5)
 
     def toggle_all_programs(self):
         if self.all_programs_var.get():
@@ -141,16 +142,29 @@ class UploadingFrame(BaseFrame):
         self.destroy()
         self.parent_frame.display_frame()
     
-    def upload_to_docx(self):
+    def upload_to_docx_table(self):
         file_path = filedialog.asksaveasfilename(defaultextension=".docx",
                                                  filetypes=[("Word documents", "*.docx"),
                                                             ("All files", "*.*")])
         if file_path:
-            self.importer.export_docx(file_path)
+            selected_groups_indices = self.groups_listbox.curselection()
+            groups = [self.groups_listbox.get(i) for i in selected_groups_indices]
+            self.importer.export_docx(file_path, groups)
+    
+    def upload_to_docx_list(self):
+        file_path = filedialog.asksaveasfilename(defaultextension=".docx",
+                                                 filetypes=[("Word documents", "*.docx"),
+                                                            ("All files", "*.*")])
+        if file_path:
+            selected_groups_indices = self.groups_listbox.curselection()
+            groups = [self.groups_listbox.get(i) for i in selected_groups_indices]
+            self.importer.export_group_details_docx(file_path, groups)
     
     def upload_to_xlsx(self):
         file_path = filedialog.asksaveasfilename(defaultextension=".xlsx",
                                                  filetypes=[("Excel files", "*.xlsx"),
                                                             ("All files", "*.*")])
         if file_path:
-            self.importer.export_excel(file_path)
+            selected_groups_indices = self.groups_listbox.curselection()
+            groups = [self.groups_listbox.get(i) for i in selected_groups_indices]
+            self.importer.export_excel(file_path, groups)

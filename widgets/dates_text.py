@@ -7,6 +7,29 @@ class DatesText:
     def __init__(self, frame, width, height):
         self.frame = frame
         self.text = tk.Text(self.frame, width=width, height=height)
+        self._bind_copy_paste()
+    
+    def _bind_copy_paste(self):
+        self.text.bind('<Control-Key>', self._handle_ctrl_key)
+        
+        self.text.bind('<Control-Insert>', self._copy)
+        self.text.bind('<Shift-Insert>', self._paste)
+    
+    def _handle_ctrl_key(self, event):
+        if event.keycode == 67:
+            self._copy()
+            return "break"
+        elif event.keycode == 86:
+            self._paste()
+            return "break"
+    
+    def _copy(self, event=None):
+        self.text.event_generate("<<Copy>>")
+        return "break"
+    
+    def _paste(self, event=None):
+        self.text.event_generate("<<Paste>>")
+        return "break"
     
     def pack(self, pady):
         self.text.pack(pady=pady)
@@ -29,7 +52,3 @@ class DatesText:
     
     def delete(self):
         self.text.delete("1.0", tk.END)
-
-
-
-

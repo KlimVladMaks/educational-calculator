@@ -46,21 +46,41 @@ class UploadingFrame(BaseFrame):
         self.all_programs_names = self.db.programs.get_all_programs_names()
         self.all_groups_names = self.db.groups.get_all_groups_names()
 
+        self.programs_frame = ttk.Frame(self.selection_frame)
+        self.programs_frame.grid(row=1, column=0, padx=10, sticky="nsew")
+        
+        self.programs_scrollbar = ttk.Scrollbar(self.programs_frame, orient=tk.VERTICAL)
         self.programs_listbox = tk.Listbox(
-            self.selection_frame,
+            self.programs_frame,
             listvariable=tk.StringVar(value=self.all_programs_names),
             selectmode=tk.MULTIPLE,
-            exportselection=False
+            exportselection=False,
+            yscrollcommand=self.programs_scrollbar.set,
+            width=30,
+            height=12
         )
-        self.programs_listbox.grid(row=1, column=0, padx=10)
+        self.programs_scrollbar.config(command=self.programs_listbox.yview)
+        
+        self.programs_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.programs_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.programs_listbox.bind('<<ListboxSelect>>', self.on_programs_selection_change)
 
+        self.groups_frame = ttk.Frame(self.selection_frame)
+        self.groups_frame.grid(row=1, column=1, padx=10, sticky="nsew")
+        
+        self.groups_scrollbar = ttk.Scrollbar(self.groups_frame, orient=tk.VERTICAL)
         self.groups_listbox = tk.Listbox(
-            self.selection_frame,
+            self.groups_frame,
             selectmode=tk.MULTIPLE,
-            exportselection=False
+            exportselection=False,
+            yscrollcommand=self.groups_scrollbar.set,
+            width=30,
+            height=12
         )
-        self.groups_listbox.grid(row=1, column=1, padx=10)
+        self.groups_scrollbar.config(command=self.groups_listbox.yview)
+        
+        self.groups_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.groups_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.groups_listbox.bind('<<ListboxSelect>>', self.update_groups_checkbox)
 
         ttk.Button(self, text="Выгрузить в DOCX", command=self.upload_to_docx).pack(pady=10)
@@ -80,7 +100,6 @@ class UploadingFrame(BaseFrame):
             self.groups_listbox.selection_clear(0, tk.END)
 
     def on_programs_selection_change(self, event):
-
         self.update_programs_checkbox(event)
         
         selected_program_indices = self.programs_listbox.curselection()

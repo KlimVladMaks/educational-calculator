@@ -16,19 +16,21 @@ class GroupsFrame(BaseFrame):
     """
     Фрейм для работы с учебными группами.
     """
+
     def __init__(self, master, parent_frame):
         super().__init__(master)
         self.parent_frame = parent_frame
         self.db = Database()
         self.create_frame()
-    
+
     def create_frame(self):
         self.back_button = BackButton(self.master, command=self.go_back)
         self.back_button.place()
         ttk.Label(self, text="Учебные группы").pack(pady=10)
         self.create_table()
-        ttk.Button(self, text="Добавить учебную группу", command=self.open_add_group_frame).pack(pady=10)
-    
+        ttk.Button(self, text="Добавить учебную группу",
+                   command=self.open_add_group_frame).pack(pady=10)
+
     def go_back(self):
         self.back_button.destroy()
         self.destroy()
@@ -51,13 +53,15 @@ class GroupsFrame(BaseFrame):
         self.table.add_rows(table_rows)
         self.table.pack(pady=10)
 
-        self.table.add_menu_command(label="Календарь", command=self.open_calendar_app)
-        self.table.add_menu_command(label="Изменить", command=self.open_edit_group_frame)
+        self.table.add_menu_command(
+            label="Календарь", command=self.open_calendar_app)
+        self.table.add_menu_command(
+            label="Изменить", command=self.open_edit_group_frame)
         self.table.add_menu_command(label="Удалить", command=self.delete_group)
-    
+
     def get_table_rows(self):
         table_rows = []
-        groups_names = self.db.groups.get_all_programs_names()
+        groups_names = self.db.groups.get_all_groups_names()
         for group_name in groups_names:
             table_row = [group_name]
             group_data_dict = self.db.groups.get_group_data_dict(group_name)
@@ -65,8 +69,10 @@ class GroupsFrame(BaseFrame):
             program = group_data_dict["program"]
             edu_type = group_data_dict["edu_type"]
             start_date = group_data_dict["start_date"]
-            end_date = Calculator.calculate_end_date(calendar, program, start_date)
-            total_days = Calculator.count_days_between_dates(start_date, end_date)
+            end_date = Calculator.calculate_end_date(
+                calendar, program, start_date)
+            total_days = Calculator.count_days_between_dates(
+                start_date, end_date)
             study_days = self.db.programs.get_total_days(program)
             days_off = total_days - study_days
             table_row.append(calendar)
@@ -83,7 +89,8 @@ class GroupsFrame(BaseFrame):
     def open_edit_group_frame(self):
         selected_group_data = self.table.get_selected_row()
         old_group_name = str(selected_group_data[0])
-        self.edit_group_frame = EditGroupFrame(self.master, self, old_group_name)
+        self.edit_group_frame = EditGroupFrame(
+            self.master, self, old_group_name)
         self.edit_group_frame.display_frame()
 
     def delete_group(self):
@@ -103,9 +110,10 @@ class GroupsFrame(BaseFrame):
         directory = "./calendar_app"
         if not os.path.exists(directory):
             os.makedirs(directory)
-        
+
         group_data_dict = self.db.groups.get_group_data_dict(group_name)
-        group_days_off_list = self.db.calendars.get_days_off_list(group_data_dict["calendar"])
+        group_days_off_list = self.db.calendars.get_days_off_list(
+            group_data_dict["calendar"])
 
         filename = ".\calendar_app\days_off.json"
         with open(filename, 'w+', encoding='utf-8') as file:
@@ -114,7 +122,7 @@ class GroupsFrame(BaseFrame):
                 "Выходной": group_days_off_list
             }
             json.dump(data, file, ensure_ascii=False, indent=4)
-        
+
         stages_intervals = Calculator.calculate_stages_intervals(group_data_dict["calendar"],
                                                                  group_data_dict["program"],
                                                                  group_data_dict["start_date"])
@@ -140,7 +148,7 @@ class GroupsFrame(BaseFrame):
                 "type": stage_type
             }
             study_periods.append(study_period)
-        
+
         filename = ".\calendar_app\study_periods.json"
         with open(filename, 'w+', encoding='utf-8') as file:
             json.dump(study_periods, file, ensure_ascii=False, indent=4)
@@ -152,6 +160,3 @@ class GroupsFrame(BaseFrame):
     def open_add_group_frame(self):
         add_group_frame = AddGroupFrame(self.master, self)
         add_group_frame.display_frame()
-
-
-

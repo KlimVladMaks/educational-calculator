@@ -5,28 +5,29 @@ class GroupsDatabase(BaseDatabase):
     """
     База данных для работы с данными учебных групп.
     """
+
     def __init__(self, parent_db):
         super().__init__(parent_db)
-    
+
     def delete_by_calendar(self, calendar_name: str) -> None:
         self.load_data()
         for group in self.data.get("groups", []):
             if group["calendar"] == calendar_name:
                 self.delete_group(group["name"])
-    
+
     def delete_by_program(self, program_name):
         self.load_data()
         for group in self.data.get("groups", []):
             if group["program"] == program_name:
                 self.delete_group(group["name"])
-    
+
     def delete_by_edu_type(self, edu_type_name):
         self.load_data()
         for group in self.data.get("groups", []):
             if group["edu_type"] == edu_type_name:
                 self.delete_group(group["name"])
 
-    def get_all_programs_names(self):
+    def get_all_groups_names(self):
         self.load_data()
         groups_names = []
         for group in self.data.get("groups", []):
@@ -95,12 +96,11 @@ class GroupsDatabase(BaseDatabase):
                 group["start_date"] = new_start_date
                 break
         self.save_data()
-    
 
-
-
-
-
-
-
-
+    def get_all_groups_by_program(self, program_name):
+        self.load_data()
+        groups = []
+        for group in self.data.get("groups", []):
+            if group["program"] == program_name:
+                groups.append(group["name"])
+        return groups

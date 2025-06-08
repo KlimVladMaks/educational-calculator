@@ -53,11 +53,10 @@ class UploadingFrame(BaseFrame):
             exportselection=False
         )
         self.programs_listbox.grid(row=1, column=0, padx=10)
-        self.programs_listbox.bind('<<ListboxSelect>>', self.update_programs_checkbox)
+        self.programs_listbox.bind('<<ListboxSelect>>', self.on_programs_selection_change)
 
         self.groups_listbox = tk.Listbox(
             self.selection_frame,
-            listvariable=tk.StringVar(value=self.all_groups_names),
             selectmode=tk.MULTIPLE,
             exportselection=False
         )
@@ -72,12 +71,33 @@ class UploadingFrame(BaseFrame):
             self.programs_listbox.selection_set(0, tk.END)
         else:
             self.programs_listbox.selection_clear(0, tk.END)
+        self.on_programs_selection_change(None)
 
     def toggle_all_groups(self):
         if self.all_groups_var.get():
             self.groups_listbox.selection_set(0, tk.END)
         else:
             self.groups_listbox.selection_clear(0, tk.END)
+
+    def on_programs_selection_change(self, event):
+
+        self.update_programs_checkbox(event)
+        
+        selected_program_indices = self.programs_listbox.curselection()
+        selected_programs = [self.programs_listbox.get(i) for i in selected_program_indices]
+        
+        filtered_groups = []
+        for program in selected_programs:
+            filtered_groups.extend(self.db.groups.get_all_groups_by_program(program))
+        
+        filtered_groups = list(set(filtered_groups))
+        
+        self.groups_listbox.delete(0, tk.END)
+        for group in sorted(filtered_groups):
+            self.groups_listbox.insert(tk.END, group)
+        
+        self.groups_listbox.selection_clear(0, tk.END)
+        self.all_groups_var.set(False)
 
     def update_programs_checkbox(self, event):
         selected_count = len(self.programs_listbox.curselection())
@@ -90,9 +110,9 @@ class UploadingFrame(BaseFrame):
 
     def update_groups_checkbox(self, event):
         selected_count = len(self.groups_listbox.curselection())
-        total_count = len(self.all_groups_names)
+        total_count = self.groups_listbox.size()
         
-        if selected_count == total_count:
+        if selected_count == total_count and total_count > 0:
             self.all_groups_var.set(True)
         else:
             self.all_groups_var.set(False)

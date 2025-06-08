@@ -1,11 +1,18 @@
 import os
 import json
+import sys
 import tkinter as tk
 from frames.main_menu_frame import MainMenuFrame
 
 
+def get_actual_path():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    else:
+        return os.path.dirname(os.path.abspath(__file__))
+
 def check_and_create_calendar_app_files():
-    current_dir = os.path.dirname(os.path.abspath(__file__))
+    current_dir = get_actual_path()
     calendar_app_dir = os.path.join(current_dir, "calendar_app")
     
     if not os.path.exists(calendar_app_dir):
